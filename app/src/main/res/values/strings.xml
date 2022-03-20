@@ -1,5 +1,20 @@
 <resources>
     <string name="app_name">kode</string>
-    <string name="search_bar_placeholder">Введите имя, тег, почту...</string>
+    <string name="search_bar_placeholder">Введите имя, тег, почту…</string>
     <string name="search_field_cancel">Отмена</string>
+
+    <string name="department_tab_all">Все</string>
+    <string name="department_tab_android">Android</string>
+    <string name="department_tab_ios">iOS</string>
+    <string name="department_tab_design">Design</string>
+    <string name="department_tab_management">Management</string>
+    <string name="department_tab_qa">QA</string>
+    <string name="department_tab_back_office">Back Office</string>
+    <string name="department_tab_frontend">Fronted</string>
+    <string name="department_tab_hr">HR</string>
+    <string name="department_tab_pr">PR</string>
+    <string name="department_tab_backend">Backend</string>
+    <string name="department_tab_support">Support</string>
+    <string name="department_tab_analytics">Analytics</string>
+
 </resources>

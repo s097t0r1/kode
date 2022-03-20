@@ -4,11 +4,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.s097t0r1.domain.entities.Department
 import com.s097t0r1.kode.ui.theme.KodeTheme
 
 class MainActivity : ComponentActivity() {
@@ -16,28 +19,31 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             KodeTheme {
-                MainScreen()
+                Scaffold {
+                    MainScreen(Modifier.padding(it), {}, {})
+                }
+
             }
         }
     }
 }
 
 @Composable
-fun MainScreen() {
-
+fun MainScreen(
+    modifier: Modifier = Modifier,
+    onFilterClick: () -> Unit,
+    onTabClick: (Department?) -> Unit
+) {
     val (searchText, setSearchText) = remember { mutableStateOf("") }
-    val selectedTabIndex by remember { mutableStateOf(0) }
 
-    Column {
+    Column(modifier = modifier) {
         SearchField(
             text = searchText,
             onTextChange = setSearchText,
-            onFilterClick = {},
+            onFilterClick = onFilterClick,
         )
+        MainTabs(onTabClick)
     }
-
-
-
 }
 
 @Preview(showBackground = true)

@@ -36,7 +36,7 @@ fun List<RemoteUser>.toDomainModel(): List<User> {
             firstName = it.firstName,
             lastName = it.lastName,
             userTag = it.userTag,
-            department = Department.valueOf(it.department),
+            department = Department.valueOf(it.department.uppercase()),
             position = it.position,
             birthday = dateFormatter.parse(it.birthDay) ?: throw RuntimeException("Cannot parse date"),
             phone = it.phone
