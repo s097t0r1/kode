@@ -17,4 +17,8 @@
     <string name="department_tab_support">Support</string>
     <string name="department_tab_analytics">Analytics</string>
 
+    <string name="critical_error_title">Какой-то сверхразум все сломал</string>
+    <string name="critical_error_subtitle">Постараемся быстро починить</string>
+    <string name="critical_error_retry">Попробовать снова</string>
+
 </resources>
