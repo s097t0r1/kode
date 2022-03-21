@@ -3,6 +3,7 @@ package com.s097t0r1.kode.ui.main
 import com.s097t0r1.domain.entities.User
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
 
 class UsersFilterManager() {
 
@@ -14,8 +15,8 @@ class UsersFilterManager() {
 
     private var users: List<User> = emptyList()
 
-    private val _flow = MutableStateFlow(emptyList<User>())
-    val flow: Flow<List<User>> = _flow
+    private val _flow = MutableStateFlow<List<User>?>(null)
+    val flow: Flow<List<User>> = _flow.filterNotNull()
 
     private val predicates: Array<((User) -> Boolean)?> = Array(SIZE_OF_PREDICATES_ARRAY) { null }
 

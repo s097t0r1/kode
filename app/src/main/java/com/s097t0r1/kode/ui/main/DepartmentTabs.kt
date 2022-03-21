@@ -15,7 +15,7 @@ enum class DepartmentTabs(
     MANAGEMENT(Department.MANAGEMENT, R.string.department_tab_management),
     QA(Department.QA, R.string.department_tab_qa),
     BACK_OFFICE(Department.BACK_OFFICE, R.string.department_tab_back_office),
-    FRONTED(Department.FRONTED, R.string.department_tab_frontend),
+    FRONTED(Department.FRONTEND, R.string.department_tab_frontend),
     HR(Department.HR, R.string.department_tab_hr),
     PR(Department.PR, R.string.department_tab_pr),
     BACKEND(Department.BACKEND, R.string.department_tab_backend),

@@ -1,11 +1,10 @@
 package com.s097t0r1.kode.ui.main
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -166,22 +165,57 @@ fun DepartmentTabs(onTabClick: (Department?) -> Unit) {
 }
 
 @Composable
-fun ShimmerList() {
+fun UsersList(modifier: Modifier = Modifier, viewState: MainViewState, users: List<User>) {
     LazyColumn() {
-        items(5) {
-
+        items(users) { user ->
+            ItemUser(
+                viewState = viewState,
+                user = user
+            )
         }
     }
 }
 
 @Composable
-fun ItemUser(modifier: Modifier = Modifier, viewState: MainViewState, user: User) {
-    Row {
+fun EmptySearchScreen(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            modifier = Modifier
+                .padding(8.dp)
+                .size(56.dp),
+            painter = painterResource(R.drawable.ic_empty_search_result),
+            contentDescription = null
+        )
+        Text(
+            text = stringResource(R.string.empty_search_title),
+            style = MaterialTheme.typography.subtitle2
+        )
+        Text(
+            modifier = Modifier.padding(12.dp),
+            text =  stringResource(R.string.empty_search_subtitle),
+            style = MaterialTheme.typography.caption
+        )
+    }
+}
+
+@Composable
+fun ItemUser(
+    modifier: Modifier = Modifier,
+    viewState: MainViewState,
+    user: User
+) {
+    Row(
+        modifier = modifier.fillMaxWidth().padding(vertical = 12.dp)
+    ) {
         AsyncImage(
             modifier = modifier
-                .clip(CircleShape)
-                .size(72.dp)
                 .padding(horizontal = 16.dp)
+                .size(72.dp)
+                .clip(CircleShape)
                 .placeholder(
                     visible = viewState is MainViewState.InitialLoadingUsers,
                     highlight = PlaceholderHighlight.fade(),
@@ -218,11 +252,13 @@ fun ItemUser(modifier: Modifier = Modifier, viewState: MainViewState, user: User
                 )
             }
             Text(
-                modifier = Modifier.placeholder(
-                    visible = viewState is MainViewState.InitialLoadingUsers,
-                    highlight = PlaceholderHighlight.fade(),
-                    shape = RoundedCornerShape(8.dp)
-                ),
+                modifier = Modifier
+                    .padding(top = 6.dp)
+                    .placeholder(
+                        visible = viewState is MainViewState.InitialLoadingUsers,
+                        highlight = PlaceholderHighlight.fade(),
+                        shape = RoundedCornerShape(8.dp)
+                    ),
                 text = user.position,
                 style = KodeTypography.Subtitle
             )
@@ -246,6 +282,18 @@ fun TabsPreview() {
 
 @Composable
 @Preview(showBackground = true)
-fun ItemUserPreview() {
+fun ItemUserPlaceholderPreview() {
     ItemUser(Modifier, MainViewState.InitialLoadingUsers(), mockUser)
+}
+
+@Composable
+@Preview(showBackground = true)
+fun ItemUserPreview() {
+    ItemUser(Modifier, MainViewState.CriticalError, mockUser)
+}
+
+@Composable
+@Preview(showBackground = true)
+fun EmptySearchPreview() {
+    EmptySearchScreen()
 }

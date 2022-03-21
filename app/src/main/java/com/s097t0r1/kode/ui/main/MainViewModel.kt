@@ -50,12 +50,12 @@ class MainViewModel(
     }
 
     fun setSearchQuery(searchQuery: String) {
-        if (searchQuery.length > 2) {
-            usersManager.setNamePredicate { user ->
-                user.firstName.contains(searchQuery) ||
-                        user.lastName.contains(searchQuery) ||
-                        user.userTag.contains(searchQuery)
-            }
+        usersManager.setNamePredicate { user ->
+            if (searchQuery.length < 2) return@setNamePredicate true
+
+            return@setNamePredicate user.firstName.contains(searchQuery) ||
+                    user.lastName.contains(searchQuery) ||
+                    user.userTag.contains(searchQuery)
         }
     }
 

@@ -21,4 +21,6 @@
     <string name="critical_error_subtitle">Постараемся быстро починить</string>
     <string name="critical_error_retry">Попробовать снова</string>
 
+    <string name="empty_search_title">Мы никого не нашли</string>
+    <string name="empty_search_subtitle">Попробуйте скорректировать ваш запрос</string>
 </resources>
