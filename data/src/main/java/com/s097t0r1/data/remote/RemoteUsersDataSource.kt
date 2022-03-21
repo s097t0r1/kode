@@ -16,7 +16,7 @@ class RemoteUsersDataSource(
         safeLaunch {
             val remoteUsers = usersService.getUsers()
             withContext(Dispatchers.Default) {
-                return@withContext remoteUsers.toDomainModel()
+                return@withContext remoteUsers.items.toDomainModel()
             }
         }
     }

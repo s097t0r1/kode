@@ -22,7 +22,7 @@ data class RemoteUser(
 
     val position: String,
 
-    val birthDay: String,
+    val birthday: String,
 
     val phone: String
 )
@@ -38,7 +38,7 @@ fun List<RemoteUser>.toDomainModel(): List<User> {
             userTag = it.userTag,
             department = Department.valueOf(it.department.uppercase()),
             position = it.position,
-            birthday = dateFormatter.parse(it.birthDay) ?: throw RuntimeException("Cannot parse date"),
+            birthday = dateFormatter.parse(it.birthday) ?: throw RuntimeException("Cannot parse date"),
             phone = it.phone
         )
     }

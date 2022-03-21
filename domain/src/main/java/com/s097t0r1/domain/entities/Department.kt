@@ -7,7 +7,7 @@ enum class Department(value: String) {
     MANAGEMENT("management"),
     QA("qa"),
     BACK_OFFICE("back_office"),
-    FRONTED("frontend"),
+    FRONTEND("frontend"),
     HR("hr"),
     PR("pr"),
     BACKEND("backend"),
