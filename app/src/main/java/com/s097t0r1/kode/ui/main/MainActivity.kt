@@ -42,7 +42,7 @@ fun MainScreen(
             onTextChange = setSearchText,
             onFilterClick = onFilterClick,
         )
-        MainTabs(onTabClick)
+        DepartmentTabs(onTabClick)
     }
 }
 

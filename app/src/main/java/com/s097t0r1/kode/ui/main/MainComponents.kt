@@ -127,7 +127,7 @@ fun SearchField(
 }
 
 @Composable
-fun MainTabs(onTabClick: (Department?) -> Unit) {
+fun DepartmentTabs(onTabClick: (Department?) -> Unit) {
 
     var selectedTabIndex by remember { mutableStateOf(0) }
 
@@ -158,17 +158,12 @@ fun MainTabs(onTabClick: (Department?) -> Unit) {
 @Composable
 @Preview
 fun SearchFieldPreview() {
-    SearchField(text = "", onTextChange = {}, onFilterClick = {})
-}
-
-@Composable
-@Preview
-fun SearchFieldFocusedPreview() {
-    SearchField(Modifier, "sdfasdf", {}, {})
+    val (text, setText) = remember { mutableStateOf("") }
+    SearchField(text = text, onTextChange = setText, onFilterClick = {})
 }
 
 @Composable
 @Preview
 fun TabsPreview() {
-    MainTabs(onTabClick = {})
+    DepartmentTabs(onTabClick = {})
 }
