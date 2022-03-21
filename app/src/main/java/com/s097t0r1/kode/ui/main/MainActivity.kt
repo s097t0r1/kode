@@ -5,14 +5,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -32,12 +32,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             KodeTheme {
                 Scaffold {
-                    MainErrorScreen(
-                        modifier = Modifier
-                            .padding(it)
-                            .fillMaxSize(),
-                        onRetryClick = { }
-                    )
+                    val viewState by viewModel.viewState.collectAsState(MainViewState.InitialLoadingUsers())
+
                 }
             }
         }
@@ -47,11 +43,30 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
+    viewState: MainViewState,
     onFilterClick: () -> Unit,
-    onTabClick: (Department?) -> Unit
+    onTabClick: (Department?) -> Unit,
+    onRetryClick: () -> Unit,
+) {
+
+
+    when (viewState) {
+        MainViewState.CriticalError -> MainErrorScreen(onRetryClick = onRetryClick)
+//        else -> MainContentScreen()
+    }
+
+
+
+}
+
+@Composable
+fun MainContentScreen(
+    modifier: Modifier = Modifier,
+    viewState: MainViewState,
+    onFilterClick: () -> Unit,
+    onTabClick: (Department?) -> Unit,
 ) {
     val (searchText, setSearchText) = remember { mutableStateOf("") }
-
     Column(modifier = modifier) {
         SearchField(
             text = searchText,
@@ -59,7 +74,10 @@ fun MainScreen(
             onFilterClick = onFilterClick,
         )
         DepartmentTabs(onTabClick)
+        when (viewState) {
+        }
     }
+
 }
 
 @Composable

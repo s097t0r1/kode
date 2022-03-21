@@ -1,6 +1,7 @@
 package com.s097t0r1.kode.ui.theme
 
 import androidx.compose.material.Typography
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -26,3 +27,15 @@ val Typography = Typography(
     )
     */
 )
+
+object KodeTypography {
+    val Meta = TextStyle(
+        fontSize = 14.sp,
+        color = Color(0xFF97979B)
+    )
+
+    val Subtitle = TextStyle(
+        fontSize = 13.sp,
+        color = Color(0xFF55555C)
+    )
+}

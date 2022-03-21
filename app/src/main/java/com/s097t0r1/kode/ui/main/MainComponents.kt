@@ -1,14 +1,19 @@
 package com.s097t0r1.kode.ui.main
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
@@ -16,8 +21,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.material.fade
+import com.google.accompanist.placeholder.material.placeholder
 import com.s097t0r1.domain.entities.Department
+import com.s097t0r1.domain.entities.User
 import com.s097t0r1.kode.R
+import com.s097t0r1.kode.ui.theme.KodeTypography
 
 @Composable
 fun SearchBar(
@@ -154,6 +165,71 @@ fun DepartmentTabs(onTabClick: (Department?) -> Unit) {
     }
 }
 
+@Composable
+fun ShimmerList() {
+    LazyColumn() {
+        items(5) {
+
+        }
+    }
+}
+
+@Composable
+fun ItemUser(modifier: Modifier = Modifier, viewState: MainViewState, user: User) {
+    Row {
+        AsyncImage(
+            modifier = modifier
+                .clip(CircleShape)
+                .size(72.dp)
+                .padding(horizontal = 16.dp)
+                .placeholder(
+                    visible = viewState is MainViewState.InitialLoadingUsers,
+                    highlight = PlaceholderHighlight.fade(),
+                    shape = CircleShape
+                ),
+            model = user.avatarUrl,
+            contentDescription = null,
+            placeholder = painterResource(R.drawable.ic_item_user_avatar_placeholder),
+        )
+        Column(
+            modifier = Modifier.align(Alignment.CenterVertically)
+        ) {
+            Row {
+                Text(
+                    modifier = Modifier.placeholder(
+                        visible = viewState is MainViewState.InitialLoadingUsers,
+                        highlight = PlaceholderHighlight.fade(),
+                        shape = RoundedCornerShape(8.dp)
+                    ),
+                    text = "${user.firstName} ${user.lastName}",
+                    style = MaterialTheme.typography.subtitle2
+                )
+                Text(
+                    modifier = Modifier
+                        .padding(start = 4.dp)
+                        .align(Alignment.Bottom)
+                        .placeholder(
+                            visible = viewState is MainViewState.InitialLoadingUsers,
+                            highlight = PlaceholderHighlight.fade(),
+                            shape = RoundedCornerShape(8.dp)
+                        ),
+                    text = user.userTag,
+                    style = KodeTypography.Meta,
+                )
+            }
+            Text(
+                modifier = Modifier.placeholder(
+                    visible = viewState is MainViewState.InitialLoadingUsers,
+                    highlight = PlaceholderHighlight.fade(),
+                    shape = RoundedCornerShape(8.dp)
+                ),
+                text = user.position,
+                style = KodeTypography.Subtitle
+            )
+
+        }
+    }
+}
 
 @Composable
 @Preview
@@ -166,4 +242,10 @@ fun SearchFieldPreview() {
 @Preview
 fun TabsPreview() {
     DepartmentTabs(onTabClick = {})
+}
+
+@Composable
+@Preview(showBackground = true)
+fun ItemUserPreview() {
+    ItemUser(Modifier, MainViewState.InitialLoadingUsers(), mockUser)
 }
