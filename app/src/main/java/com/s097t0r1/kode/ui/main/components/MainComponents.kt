@@ -12,12 +12,14 @@ import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -28,7 +30,11 @@ import com.s097t0r1.domain.entities.Department
 import com.s097t0r1.domain.entities.User
 import com.s097t0r1.kode.R
 import com.s097t0r1.kode.ui.main.components.DepartmentTabs
+import com.s097t0r1.kode.ui.main.managers.UsersManager
 import com.s097t0r1.kode.ui.theme.KodeTypography
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.util.*
 
 @Composable
 fun SearchBar(
@@ -112,7 +118,7 @@ fun SearchField(
     val localFocusManager = LocalFocusManager.current
 
     Row(
-        modifier = modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+        modifier = modifier
     ) {
         SearchBar(
             modifier = Modifier.weight(1f),
@@ -166,13 +172,39 @@ fun DepartmentTabs(onTabClick: (Department?) -> Unit) {
 }
 
 @Composable
-fun UsersList(modifier: Modifier = Modifier, viewState: MainViewState, users: List<User>) {
+fun UsersListByAlphabet(
+    modifier: Modifier = Modifier,
+    viewState: MainViewState,
+    users: List<User>
+) {
     LazyColumn() {
         items(users) { user ->
             ItemUser(
                 viewState = viewState,
                 user = user
             )
+        }
+    }
+}
+
+@Composable
+fun UsersListByBirthday(
+    modifier: Modifier = Modifier,
+    viewState: MainViewState,
+    usersTuple: UsersManager.UsersBirthdayTuple
+) {
+    LazyColumn() {
+        items(usersTuple.currentYear) { user ->
+            ItemUser(viewState = viewState, user = user)
+        }
+        item {
+            UsersListDivider(
+                modifier = Modifier.padding(24.dp),
+                dividerText = (Calendar.getInstance().get(Calendar.YEAR) + 1).toString()
+            )
+        }
+        items(usersTuple.nextYear) { user ->
+            ItemUser(viewState = viewState, user = user)
         }
     }
 }
@@ -197,7 +229,7 @@ fun EmptySearchScreen(modifier: Modifier = Modifier) {
         )
         Text(
             modifier = Modifier.padding(12.dp),
-            text =  stringResource(R.string.empty_search_subtitle),
+            text = stringResource(R.string.empty_search_subtitle),
             style = MaterialTheme.typography.caption
         )
     }
@@ -230,7 +262,9 @@ fun ItemUser(
             error = painterResource(R.drawable.ic_item_user_avatar_placeholder)
         )
         Column(
-            modifier = Modifier.align(Alignment.CenterVertically)
+            modifier = Modifier
+                .align(Alignment.CenterVertically)
+                .weight(1f)
         ) {
             Row {
                 Text(
@@ -266,9 +300,52 @@ fun ItemUser(
                 text = user.position,
                 style = KodeTypography.Subtitle
             )
-
+        }
+        if (viewState is MainViewState.DisplayUsersByBirthday) {
+            BirthdayCaption(
+                modifier = Modifier
+                    .padding(20.dp)
+                    .align(Alignment.CenterVertically),
+                birthDay = user.birthday
+            )
         }
     }
+}
+
+@Composable
+fun UsersListDivider(modifier: Modifier, dividerText: String) {
+    Row(
+        modifier = modifier
+    ) {
+        Divider(
+            modifier = Modifier
+                .weight(0.2f)
+                .align(Alignment.CenterVertically)
+        )
+        Text(
+            modifier = Modifier
+                .weight(0.6f)
+                .alpha(0.4f),
+            textAlign = TextAlign.Center,
+            text = dividerText
+        )
+        Divider(
+            modifier = Modifier
+                .weight(0.2f)
+                .align(Alignment.CenterVertically)
+        )
+    }
+}
+
+@Composable
+fun BirthdayCaption(modifier: Modifier, birthDay: Date) {
+    val birthday = SimpleDateFormat("d MMM", Locale.getDefault())
+        .format(birthDay).lowercase()
+    Text(
+        modifier = modifier,
+        text = birthday,
+        style = KodeTypography.Detail
+    )
 }
 
 @Composable
@@ -298,6 +375,30 @@ fun ItemUserPreview() {
 
 @Composable
 @Preview(showBackground = true)
+fun ItemUserBirthdayPreview() {
+    ItemUser(
+        Modifier,
+        MainViewState.DisplayUsersByBirthday(
+            UsersManager.UsersBirthdayTuple(
+                emptyList(),
+                emptyList()
+            )
+        ),
+        mockUser
+    )
+}
+
+@Composable
+@Preview(showBackground = true)
 fun EmptySearchPreview() {
     EmptySearchScreen()
+}
+
+@Composable
+@Preview
+fun UsersListDividerPreview() {
+    UsersListDivider(
+        modifier = Modifier.padding(24.dp),
+        dividerText = LocalDate.now().year.toString()
+    )
 }

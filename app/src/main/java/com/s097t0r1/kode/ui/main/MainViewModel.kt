@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.s097t0r1.domain.entities.Department
 import com.s097t0r1.domain.repository.UsersRepository
-import com.s097t0r1.kode.ui.main.managers.UsersFilterManager
+import com.s097t0r1.kode.ui.main.managers.UsersManager
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.launchIn
@@ -16,7 +16,7 @@ class MainViewModel(
     private val repository: UsersRepository
 ) : ViewModel() {
 
-    private val usersManager = UsersFilterManager()
+    private val usersManager = UsersManager()
 
     private val _viewState = Channel<MainViewState>(Channel.BUFFERED)
     val viewState = _viewState.receiveAsFlow()
@@ -25,11 +25,23 @@ class MainViewModel(
         getUsers()
         usersManager.flow
             .debounce(500L)
-            .onEach {
-                if (it.isEmpty())
-                    _viewState.send(MainViewState.EmptySearchResult)
-                else
-                    _viewState.send(MainViewState.DisplayUsersByAlphabetically(it))
+            .onEach { result ->
+                when (result) {
+                    is UsersManager.Result.Alphabetically -> {
+                        if (result.value.isEmpty()) {
+                            _viewState.send(MainViewState.EmptySearchResult)
+                        } else {
+                            _viewState.send(MainViewState.DisplayUsersByAlphabetically(result.value))
+                        }
+                    }
+                    is UsersManager.Result.Birthday -> {
+                        if (result.value.isEmpty()) {
+                            _viewState.send(MainViewState.EmptySearchResult)
+                        } else {
+                            _viewState.send(MainViewState.DisplayUsersByBirthday(result.value))
+                        }
+                    }
+                }
             }.launchIn(viewModelScope)
     }
 
@@ -59,4 +71,5 @@ class MainViewModel(
                     user.userTag.contains(searchQuery)
         }
     }
+
 }

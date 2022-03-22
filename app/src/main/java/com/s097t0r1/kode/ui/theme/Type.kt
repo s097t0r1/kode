@@ -38,4 +38,9 @@ object KodeTypography {
         fontSize = 13.sp,
         color = Color(0xFF55555C)
     )
+
+    val Detail = TextStyle(
+        fontSize = 15.sp,
+        color = Color(0xFF55555C)
+    )
 }

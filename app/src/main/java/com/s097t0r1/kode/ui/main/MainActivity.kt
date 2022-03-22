@@ -4,10 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -21,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.s097t0r1.domain.entities.Department
 import com.s097t0r1.kode.R
+import com.s097t0r1.kode.ui.main.managers.UsersManager
 import com.s097t0r1.kode.ui.theme.KodeTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -65,8 +63,6 @@ fun MainScreen(
             onSearch = onSearch
         )
     }
-
-
 }
 
 @Composable
@@ -80,6 +76,7 @@ fun MainContentScreen(
     val (searchText, setSearchText) = remember { mutableStateOf("") }
     Column(modifier = modifier) {
         SearchField(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 22.dp),
             text = searchText,
             onTextChange = {
                 setSearchText(it)
@@ -89,13 +86,17 @@ fun MainContentScreen(
         )
         DepartmentTabs(onTabClick)
         when (viewState) {
-            is MainViewState.InitialLoadingUsers -> UsersList(
+            is MainViewState.InitialLoadingUsers -> UsersListByAlphabet(
                 viewState = viewState,
                 users = viewState.users
             )
-            is MainViewState.DisplayUsersByAlphabetically -> UsersList(
+            is MainViewState.DisplayUsersByAlphabetically -> UsersListByAlphabet(
                 viewState = viewState,
                 users = viewState.users
+            )
+            is MainViewState.DisplayUsersByBirthday -> UsersListByBirthday(
+                viewState = viewState,
+                usersTuple = viewState.birthdayTuple
             )
             is MainViewState.EmptySearchResult -> EmptySearchScreen(Modifier.fillMaxSize())
             else -> throw IllegalStateException("Illegal view state in MainContentScreen: " + viewState::class)
@@ -166,6 +167,17 @@ fun MainInitialLoadingPreview() {
 fun MainDisplayUsersByAlphabetically() {
     MainContentScreen(
         viewState = MainViewState.DisplayUsersByAlphabetically(mockUsers),
+        onFilterClick = { /*TODO*/ },
+        onTabClick = {},
+        onSearch = {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MainDisplayUsersByBirthday() {
+    MainContentScreen(
+        viewState = MainViewState.DisplayUsersByBirthday(UsersManager.UsersBirthdayTuple(mockUsers, mockUsers)),
         onFilterClick = { /*TODO*/ },
         onTabClick = {},
         onSearch = {}
