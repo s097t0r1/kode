@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.s097t0r1.domain.entities.Department
 import com.s097t0r1.domain.repository.UsersRepository
+import com.s097t0r1.kode.ui.main.managers.UsersFilterManager
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.launchIn
@@ -58,6 +59,4 @@ class MainViewModel(
                     user.userTag.contains(searchQuery)
         }
     }
-
-
 }

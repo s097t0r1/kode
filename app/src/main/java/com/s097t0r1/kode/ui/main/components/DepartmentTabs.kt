@@ -1,4 +1,4 @@
-package com.s097t0r1.kode.ui.main
+package com.s097t0r1.kode.ui.main.components
 
 import androidx.annotation.StringRes
 import com.s097t0r1.domain.entities.Department

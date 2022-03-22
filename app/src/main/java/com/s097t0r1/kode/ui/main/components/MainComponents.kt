@@ -27,6 +27,7 @@ import com.google.accompanist.placeholder.material.placeholder
 import com.s097t0r1.domain.entities.Department
 import com.s097t0r1.domain.entities.User
 import com.s097t0r1.kode.R
+import com.s097t0r1.kode.ui.main.components.DepartmentTabs
 import com.s097t0r1.kode.ui.theme.KodeTypography
 
 @Composable
@@ -209,7 +210,9 @@ fun ItemUser(
     user: User
 ) {
     Row(
-        modifier = modifier.fillMaxWidth().padding(vertical = 12.dp)
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp)
     ) {
         AsyncImage(
             modifier = modifier
@@ -219,11 +222,12 @@ fun ItemUser(
                 .placeholder(
                     visible = viewState is MainViewState.InitialLoadingUsers,
                     highlight = PlaceholderHighlight.fade(),
-                    shape = CircleShape
+                    shape = CircleShape,
                 ),
             model = user.avatarUrl,
             contentDescription = null,
             placeholder = painterResource(R.drawable.ic_item_user_avatar_placeholder),
+            error = painterResource(R.drawable.ic_item_user_avatar_placeholder)
         )
         Column(
             modifier = Modifier.align(Alignment.CenterVertically)

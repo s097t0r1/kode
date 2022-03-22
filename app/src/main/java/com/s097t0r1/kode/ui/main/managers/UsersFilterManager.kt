@@ -1,4 +1,4 @@
-package com.s097t0r1.kode.ui.main
+package com.s097t0r1.kode.ui.main.managers
 
 import com.s097t0r1.domain.entities.User
 import kotlinx.coroutines.flow.Flow
