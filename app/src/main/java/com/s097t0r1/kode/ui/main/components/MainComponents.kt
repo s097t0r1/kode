@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
@@ -250,6 +251,69 @@ fun EmptySearch(modifier: Modifier = Modifier) {
 }
 
 @Composable
+fun SortingBottomSheet(modifier: Modifier = Modifier, onSortingTypeSelect: (SortingType) -> Unit) {
+
+    val (currentSortingType, setCurrentSortingType) = remember { mutableStateOf(SortingType.ALPHABETICALLY) }
+
+    Column(
+        modifier = modifier
+    ) {
+        Divider(
+            modifier = Modifier
+                .width(56.dp)
+                .align(Alignment.CenterHorizontally),
+            thickness = 5.dp
+        )
+        Text(
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            text = stringResource(R.string.sorting_title),
+            style = MaterialTheme.typography.h5,
+        )
+        Spacer(modifier = Modifier.height(34.dp))
+        Column(
+            modifier = Modifier
+                .padding(horizontal = 18.dp)
+                .selectableGroup()
+        ) {
+            SortingType.values().forEach() {
+                SortItem(
+                    modifier = Modifier.fillMaxWidth(),
+                    sortingType = it,
+                    isChecked = it == currentSortingType,
+                    onSelect = { type ->
+                        onSortingTypeSelect(type)
+                        setCurrentSortingType(type)
+                    }
+                )
+            }
+
+        }
+    }
+}
+
+@Composable
+fun SortItem(
+    modifier: Modifier = Modifier,
+    sortingType: SortingType,
+    isChecked: Boolean,
+    onSelect: (SortingType) -> Unit
+) {
+    Row(modifier) {
+        RadioButton(
+            selected = isChecked,
+            onClick = { onSelect(sortingType) },
+        )
+        Spacer(Modifier.width(14.dp))
+        Text(
+            modifier = Modifier.align(Alignment.CenterVertically),
+            text = stringResource(sortingType.value),
+            style = MaterialTheme.typography.body2,
+
+        )
+    }
+}
+
+@Composable
 @Preview
 private fun SearchFieldPreview() {
     val (text, setText) = remember { mutableStateOf("") }
@@ -284,4 +348,16 @@ private fun AlphabetUsersListPreview() {
 @Preview(showBackground = true)
 private fun BirthdayUsersListPreview() {
     BirthdayUsersList(beforeNewYear = mockUsers, afterNewYear = mockUsers)
+}
+
+@Composable
+@Preview(showBackground = true)
+private fun SortBottomSheetPreview() {
+    SortingBottomSheet(onSortingTypeSelect = {})
+}
+
+@Composable
+@Preview
+private fun SortingItemPreview() {
+    SortItem(sortingType = SortingType.ALPHABETICALLY, isChecked = true, onSelect = {})
 }

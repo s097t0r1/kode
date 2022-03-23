@@ -23,4 +23,8 @@
 
     <string name="empty_search_title">Мы никого не нашли</string>
     <string name="empty_search_subtitle">Попробуйте скорректировать ваш запрос</string>
+
+    <string name="sorting_title">Сортировка</string>
+    <string name="sorting_by_alphabet">По алфавиту</string>
+    <string name="sorting_by_birthday">По дню рождения</string>
 </resources>

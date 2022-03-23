@@ -1,6 +1,7 @@
 package com.s097t0r1.kode.ui.main.managers
 
 import com.s097t0r1.domain.entities.User
+import com.s097t0r1.kode.ui.main.components.SortingType
 import com.s097t0r1.kode.utils.toDate
 import com.s097t0r1.kode.utils.toLocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +20,7 @@ class UsersManager {
 
     private var users: List<User> = emptyList()
 
-    private var sortingType: UsersSortingType = UsersSortingType.BIRTHDAY
+    private var sortingType: SortingType = SortingType.BIRTHDAY
 
     private val _flow = MutableStateFlow<Result>(Result.Initial)
     val flow: StateFlow<Result> = _flow
@@ -43,7 +44,7 @@ class UsersManager {
         _flow.value = filterAndSort()
     }
 
-    fun setSortingType(type: UsersSortingType) {
+    fun setSortingType(type: SortingType) {
         sortingType = type
         _flow.value = filterAndSort()
     }
@@ -53,10 +54,10 @@ class UsersManager {
 
     private fun sort(users: List<User>): Result {
         return when (sortingType) {
-            UsersSortingType.ALPHABETICALLY -> {
+            SortingType.ALPHABETICALLY -> {
                 Result.Alphabetically(sortByAlphabet(users))
             }
-            UsersSortingType.BIRTHDAY -> {
+            SortingType.BIRTHDAY -> {
                 Result.Birthday(sortByBirthday(users))
             }
         }
@@ -92,10 +93,6 @@ class UsersManager {
         predicates.filterNotNull()
             .fold(users) { users, predicate -> users.filter(predicate) }
 
-    enum class UsersSortingType {
-        ALPHABETICALLY,
-        BIRTHDAY
-    }
 
     sealed class Result {
         object Initial : Result()

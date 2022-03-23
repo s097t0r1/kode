@@ -5,10 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,6 +23,7 @@ import com.s097t0r1.kode.ui.main.managers.UsersManager
 import com.s097t0r1.kode.ui.theme.KodeTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
+@ExperimentalMaterialApi
 class MainActivity : ComponentActivity() {
 
     val viewModel: MainViewModel by viewModel()
@@ -34,7 +32,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             KodeTheme {
-                Scaffold {
+                BottomSheetScaffold(sheetContent = {SortingBottomSheet(onSortingTypeSelect = {}) }) {
 
                     val viewState by viewModel.viewState.collectAsState(MainViewState.InitialLoadingUsers)
                     val viewEffect by viewModel.viewEffect.collectAsState(MainViewEffect.Empty)
