@@ -21,6 +21,7 @@ import com.s097t0r1.kode.R
 import com.s097t0r1.kode.ui.main.components.*
 import com.s097t0r1.kode.ui.main.managers.UsersManager
 import com.s097t0r1.kode.ui.theme.KodeTheme
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 @ExperimentalMaterialApi
@@ -32,15 +33,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             KodeTheme {
-                BottomSheetScaffold(sheetContent = {SortingBottomSheet(onSortingTypeSelect = {}) }) {
-
+                Scaffold {
                     val viewState by viewModel.viewState.collectAsState(MainViewState.InitialLoadingUsers)
                     val viewEffect by viewModel.viewEffect.collectAsState(MainViewEffect.Empty)
 
                     MainScreen(
                         viewState = viewState,
                         viewEffect = viewEffect,
-                        onFilterClick = {},
+                        onSortTypeSelect = viewModel::setSortingType,
                         onTabClick = viewModel::setDepartment,
                         onRetryClick = viewModel::getUsers,
                         onSearch = viewModel::setSearchQuery,
@@ -56,7 +56,7 @@ class MainActivity : ComponentActivity() {
 private fun MainScreen(
     viewState: MainViewState,
     viewEffect: MainViewEffect,
-    onFilterClick: () -> Unit,
+    onSortTypeSelect: (SortingType) -> Unit,
     onTabClick: (Department?) -> Unit,
     onRetryClick: () -> Unit,
     onSearch: (String) -> Unit,
@@ -68,7 +68,7 @@ private fun MainScreen(
         else -> MainContentScreen(
             viewState = viewState,
             viewEffect = viewEffect,
-            onFilterClick = onFilterClick,
+            onSortTypeSelect = onSortTypeSelect,
             onTabClick = onTabClick,
             onSearch = onSearch,
             onRefresh = onRefresh
@@ -76,38 +76,58 @@ private fun MainScreen(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun MainContentScreen(
     modifier: Modifier = Modifier,
     viewState: MainViewState,
     viewEffect: MainViewEffect,
-    onFilterClick: () -> Unit,
+    onSortTypeSelect: (SortingType) -> Unit,
     onTabClick: (Department?) -> Unit,
     onSearch: (String) -> Unit,
     onRefresh: () -> Unit
 ) {
     val (searchText, setSearchText) = remember { mutableStateOf("") }
 
-    Column(modifier = modifier) {
-        SearchField(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 22.dp),
-            text = searchText,
-            onTextChange = {
-                setSearchText(it)
-                onSearch(it)
-            },
-            onFilterClick = onFilterClick,
-        )
-        DepartmentTabs(onTabClick)
-        when (viewState) {
-            is MainViewState.InitialLoadingUsers -> PlaceholderUsersList()
-            is MainViewState.EmptySearchResult -> EmptySearch(Modifier.fillMaxSize())
-            else -> {
-                MainRefreshableContentScreen(
-                    viewState = viewState,
-                    viewEffect = viewEffect,
-                    onRefresh = onRefresh
-                )
+    val coroutineScope = rememberCoroutineScope()
+    val bottomSheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+    )
+
+    ModalBottomSheetLayout(
+        sheetState = bottomSheetState,
+        sheetContent = {
+            SortingBottomSheet(
+                onSortingTypeSelect = {
+                    onSortTypeSelect(it)
+                    coroutineScope.launch { bottomSheetState.hide() }
+                }
+            )
+        }
+    ) {
+        Column(modifier = modifier) {
+            SearchField(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 22.dp),
+                text = searchText,
+                onTextChange = {
+                    setSearchText(it)
+                    onSearch(it)
+                },
+                onFilterClick = {
+                    coroutineScope.launch { bottomSheetState.show() }
+                }
+            )
+            DepartmentTabs(onTabClick)
+            when (viewState) {
+                is MainViewState.InitialLoadingUsers -> PlaceholderUsersList()
+                is MainViewState.EmptySearchResult -> EmptySearch(Modifier.fillMaxSize())
+                else -> {
+                    MainRefreshableContentScreen(
+                        viewState = viewState,
+                        viewEffect = viewEffect,
+                        onRefresh = onRefresh
+                    )
+                }
             }
         }
     }
@@ -170,7 +190,7 @@ private fun MainErrorScreenPreview() {
     MainScreen(
         viewState = MainViewState.CriticalError,
         viewEffect = MainViewEffect.Empty,
-        onFilterClick = {},
+        onSortTypeSelect = {},
         onTabClick = {},
         onRetryClick = {},
         onSearch = {},
@@ -184,7 +204,7 @@ private fun MainEmptySearch() {
     MainScreen(
         viewState = MainViewState.EmptySearchResult,
         viewEffect = MainViewEffect.Empty,
-        onFilterClick = { /*TODO*/ },
+        onSortTypeSelect = { /*TODO*/ },
         onTabClick = {},
         onSearch = {},
         onRetryClick = {},
@@ -198,7 +218,7 @@ private fun MainInitialLoadingPreview() {
     MainScreen(
         viewState = MainViewState.InitialLoadingUsers,
         viewEffect = MainViewEffect.Empty,
-        onFilterClick = {},
+        onSortTypeSelect = {},
         onTabClick = {},
         onSearch = {},
         onRetryClick = {},
@@ -212,7 +232,7 @@ private fun MainDisplayUsersByAlphabetically() {
     MainScreen(
         viewState = MainViewState.DisplayUsersByAlphabetically(mockUsers),
         viewEffect = MainViewEffect.Empty,
-        onFilterClick = { /*TODO*/ },
+        onSortTypeSelect = { /*TODO*/ },
         onTabClick = {},
         onSearch = {},
         onRetryClick = {},
@@ -230,8 +250,8 @@ private fun MainDisplayUsersByBirthday() {
                 mockUsers
             )
         ),
-        viewEffect = MainViewEffect.Empty  ,
-        onFilterClick = {},
+        viewEffect = MainViewEffect.Empty,
+        onSortTypeSelect = {},
         onTabClick = {},
         onSearch = {},
         onRetryClick = {},
@@ -245,7 +265,7 @@ private fun MainRefreshUsers() {
     MainScreen(
         viewState = MainViewState.DisplayUsersByAlphabetically(mockUsers),
         viewEffect = MainViewEffect.OnSwipeRefresh,
-        onFilterClick = { /*TODO*/ },
+        onSortTypeSelect = { /*TODO*/ },
         onTabClick = {},
         onSearch = {},
         onRetryClick = {},

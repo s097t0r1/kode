@@ -12,6 +12,7 @@ import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
@@ -260,8 +261,11 @@ fun SortingBottomSheet(modifier: Modifier = Modifier, onSortingTypeSelect: (Sort
     ) {
         Divider(
             modifier = Modifier
+                .padding(vertical = 12.dp)
+                .clip(RoundedCornerShape(8.dp))
                 .width(56.dp)
                 .align(Alignment.CenterHorizontally),
+
             thickness = 5.dp
         )
         Text(
@@ -286,8 +290,16 @@ fun SortingBottomSheet(modifier: Modifier = Modifier, onSortingTypeSelect: (Sort
                     }
                 )
             }
-
         }
+        Spacer(modifier = Modifier.height(32.dp))
+        Divider(
+            modifier = Modifier
+                .padding(vertical = 9.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .width(134.dp)
+                .align(Alignment.CenterHorizontally),
+            thickness = 5.dp
+        )
     }
 }
 
@@ -302,13 +314,16 @@ fun SortItem(
         RadioButton(
             selected = isChecked,
             onClick = { onSelect(sortingType) },
+            colors = RadioButtonDefaults.colors(
+                selectedColor = MaterialTheme.colors.primary,
+                unselectedColor = MaterialTheme.colors.primary,
+            )
         )
         Spacer(Modifier.width(14.dp))
         Text(
             modifier = Modifier.align(Alignment.CenterVertically),
             text = stringResource(sortingType.value),
             style = MaterialTheme.typography.body2,
-
         )
     }
 }

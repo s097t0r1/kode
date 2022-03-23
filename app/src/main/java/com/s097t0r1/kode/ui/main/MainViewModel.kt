@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.s097t0r1.domain.entities.Department
 import com.s097t0r1.domain.repository.UsersRepository
+import com.s097t0r1.kode.ui.main.components.SortingType
 import com.s097t0r1.kode.ui.main.managers.UsersManager
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.debounce
@@ -83,6 +84,10 @@ class MainViewModel(
                     user.lastName.contains(searchQuery) ||
                     user.userTag.contains(searchQuery)
         }
+    }
+
+    fun setSortingType(sortingType: SortingType) {
+        usersManager.setSortingType(sortingType)
     }
 
 }

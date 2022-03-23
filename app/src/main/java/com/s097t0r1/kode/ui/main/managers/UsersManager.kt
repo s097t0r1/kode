@@ -20,7 +20,7 @@ class UsersManager {
 
     private var users: List<User> = emptyList()
 
-    private var sortingType: SortingType = SortingType.BIRTHDAY
+    private var sortingType: SortingType = SortingType.ALPHABETICALLY
 
     private val _flow = MutableStateFlow<Result>(Result.Initial)
     val flow: StateFlow<Result> = _flow
