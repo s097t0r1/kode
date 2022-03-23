@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.s097t0r1.data.mock.mockUsers
 import com.s097t0r1.domain.entities.Department
 import com.s097t0r1.kode.R
+import com.s097t0r1.kode.ui.main.components.*
 import com.s097t0r1.kode.ui.main.managers.UsersManager
 import com.s097t0r1.kode.ui.theme.KodeTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel

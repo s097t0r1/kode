@@ -1,4 +1,4 @@
-package com.s097t0r1.kode.ui.main
+package com.s097t0r1.kode.ui.main.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -22,10 +22,6 @@ import com.s097t0r1.data.mock.mockUsers
 import com.s097t0r1.domain.entities.Department
 import com.s097t0r1.domain.entities.User
 import com.s097t0r1.kode.R
-import com.s097t0r1.kode.ui.main.components.BirthdayDivider
-import com.s097t0r1.kode.ui.main.components.BirthdayItemUser
-import com.s097t0r1.kode.ui.main.components.DepartmentTabs
-import com.s097t0r1.kode.ui.main.components.ItemUser
 import java.util.*
 
 @Composable
