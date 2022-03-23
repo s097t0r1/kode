@@ -16,6 +16,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.s097t0r1.data.mock.mockUsers
 import com.s097t0r1.domain.entities.Department
 import com.s097t0r1.kode.R
 import com.s097t0r1.kode.ui.main.managers.UsersManager
@@ -31,7 +32,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             KodeTheme {
                 Scaffold {
-                    val viewState by viewModel.viewState.collectAsState(MainViewState.InitialLoadingUsers())
+                    val viewState by viewModel.viewState.collectAsState(MainViewState.InitialLoadingUsers)
                     MainScreen(
                         viewState = viewState,
                         onFilterClick = {},
@@ -46,7 +47,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(
+private fun MainScreen(
     viewState: MainViewState,
     onFilterClick: () -> Unit,
     onTabClick: (Department?) -> Unit,
@@ -66,7 +67,7 @@ fun MainScreen(
 }
 
 @Composable
-fun MainContentScreen(
+private fun MainContentScreen(
     modifier: Modifier = Modifier,
     viewState: MainViewState,
     onFilterClick: () -> Unit,
@@ -86,19 +87,13 @@ fun MainContentScreen(
         )
         DepartmentTabs(onTabClick)
         when (viewState) {
-            is MainViewState.InitialLoadingUsers -> UsersListByAlphabet(
-                viewState = viewState,
-                users = viewState.users
+            is MainViewState.InitialLoadingUsers -> PlaceholderUsersList()
+            is MainViewState.DisplayUsersByAlphabetically -> AlphabetUsersList(users = viewState.users)
+            is MainViewState.DisplayUsersByBirthday -> BirthdayUsersList(
+                beforeNewYear = viewState.birthdayTuple.currentYear,
+                afterNewYear = viewState.birthdayTuple.nextYear
             )
-            is MainViewState.DisplayUsersByAlphabetically -> UsersListByAlphabet(
-                viewState = viewState,
-                users = viewState.users
-            )
-            is MainViewState.DisplayUsersByBirthday -> UsersListByBirthday(
-                viewState = viewState,
-                usersTuple = viewState.birthdayTuple
-            )
-            is MainViewState.EmptySearchResult -> EmptySearchScreen(Modifier.fillMaxSize())
+            is MainViewState.EmptySearchResult -> EmptySearch(Modifier.fillMaxSize())
             else -> throw IllegalStateException("Illegal view state in MainContentScreen: " + viewState::class)
         }
     }
@@ -106,7 +101,7 @@ fun MainContentScreen(
 
 
 @Composable
-fun MainErrorScreen(
+private fun MainErrorScreen(
     modifier: Modifier = Modifier,
     onRetryClick: () -> Unit
 ) {
@@ -136,50 +131,65 @@ fun MainErrorScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun MainErrorScreenPreview() {
-    MainErrorScreen(onRetryClick = {})
+private fun MainErrorScreenPreview() {
+    MainScreen(
+        viewState = MainViewState.CriticalError,
+        onFilterClick = {},
+        onTabClick = {},
+        onRetryClick = {},
+        onSearch = {},
+    )
 }
 
 @Preview(showBackground = true)
 @Composable
-fun MainEmptySearch() {
-    MainContentScreen(
+private fun MainEmptySearch() {
+    MainScreen(
         viewState = MainViewState.EmptySearchResult,
         onFilterClick = { /*TODO*/ },
         onTabClick = {},
-        onSearch = {}
+        onSearch = {},
+        onRetryClick = {}
     )
 }
 
 @Preview(showBackground = true)
 @Composable
-fun MainInitialLoadingPreview() {
-    MainContentScreen(
-        viewState = MainViewState.InitialLoadingUsers(),
-        onFilterClick = { /*TODO*/ },
+private fun MainInitialLoadingPreview() {
+    MainScreen(
+        viewState = MainViewState.InitialLoadingUsers,
+        onFilterClick = {},
         onTabClick = {},
-        onSearch = {}
+        onSearch = {},
+        onRetryClick = {}
     )
 }
 
 @Preview(showBackground = true)
 @Composable
-fun MainDisplayUsersByAlphabetically() {
-    MainContentScreen(
+private fun MainDisplayUsersByAlphabetically() {
+    MainScreen(
         viewState = MainViewState.DisplayUsersByAlphabetically(mockUsers),
         onFilterClick = { /*TODO*/ },
         onTabClick = {},
-        onSearch = {}
+        onSearch = {},
+        onRetryClick = {}
     )
 }
 
 @Preview(showBackground = true)
 @Composable
-fun MainDisplayUsersByBirthday() {
-    MainContentScreen(
-        viewState = MainViewState.DisplayUsersByBirthday(UsersManager.UsersBirthdayTuple(mockUsers, mockUsers)),
+private fun MainDisplayUsersByBirthday() {
+    MainScreen(
+        viewState = MainViewState.DisplayUsersByBirthday(
+            UsersManager.UsersBirthdayTuple(
+                mockUsers,
+                mockUsers
+            )
+        ),
         onFilterClick = { /*TODO*/ },
         onTabClick = {},
-        onSearch = {}
+        onSearch = {},
+        onRetryClick = {}
     )
 }

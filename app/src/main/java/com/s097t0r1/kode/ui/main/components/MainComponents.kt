@@ -5,35 +5,27 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import com.google.accompanist.placeholder.PlaceholderHighlight
-import com.google.accompanist.placeholder.material.fade
-import com.google.accompanist.placeholder.material.placeholder
+import com.s097t0r1.data.mock.mockUsers
 import com.s097t0r1.domain.entities.Department
 import com.s097t0r1.domain.entities.User
 import com.s097t0r1.kode.R
+import com.s097t0r1.kode.ui.main.components.BirthdayDivider
+import com.s097t0r1.kode.ui.main.components.BirthdayItemUser
 import com.s097t0r1.kode.ui.main.components.DepartmentTabs
-import com.s097t0r1.kode.ui.main.managers.UsersManager
-import com.s097t0r1.kode.ui.theme.KodeTypography
-import java.text.SimpleDateFormat
-import java.time.LocalDate
+import com.s097t0r1.kode.ui.main.components.ItemUser
 import java.util.*
 
 @Composable
@@ -172,15 +164,16 @@ fun DepartmentTabs(onTabClick: (Department?) -> Unit) {
 }
 
 @Composable
-fun UsersListByAlphabet(
+fun AlphabetUsersList(
     modifier: Modifier = Modifier,
-    viewState: MainViewState,
     users: List<User>
 ) {
-    LazyColumn() {
+    LazyColumn(modifier) {
         items(users) { user ->
             ItemUser(
-                viewState = viewState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 user = user
             )
         }
@@ -188,29 +181,54 @@ fun UsersListByAlphabet(
 }
 
 @Composable
-fun UsersListByBirthday(
+fun BirthdayUsersList(
     modifier: Modifier = Modifier,
-    viewState: MainViewState,
-    usersTuple: UsersManager.UsersBirthdayTuple
+    beforeNewYear: List<User>,
+    afterNewYear: List<User>
 ) {
-    LazyColumn() {
-        items(usersTuple.currentYear) { user ->
-            ItemUser(viewState = viewState, user = user)
+    LazyColumn(modifier) {
+        items(beforeNewYear) { user ->
+            BirthdayItemUser(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                user = user
+            )
         }
         item {
-            UsersListDivider(
+            BirthdayDivider(
                 modifier = Modifier.padding(24.dp),
                 dividerText = (Calendar.getInstance().get(Calendar.YEAR) + 1).toString()
             )
         }
-        items(usersTuple.nextYear) { user ->
-            ItemUser(viewState = viewState, user = user)
+        items(afterNewYear) { user ->
+            BirthdayItemUser(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                user = user
+            )
         }
     }
 }
 
 @Composable
-fun EmptySearchScreen(modifier: Modifier = Modifier) {
+fun PlaceholderUsersList(modifier: Modifier = Modifier) {
+    LazyColumn(modifier) {
+        items(mockUsers) { user ->
+            ItemUser(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                user = user,
+                showPlaceholder = true
+            )
+        }
+    }
+}
+
+@Composable
+fun EmptySearch(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
@@ -236,169 +254,38 @@ fun EmptySearchScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ItemUser(
-    modifier: Modifier = Modifier,
-    viewState: MainViewState,
-    user: User
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 12.dp)
-    ) {
-        AsyncImage(
-            modifier = modifier
-                .padding(horizontal = 16.dp)
-                .size(72.dp)
-                .clip(CircleShape)
-                .placeholder(
-                    visible = viewState is MainViewState.InitialLoadingUsers,
-                    highlight = PlaceholderHighlight.fade(),
-                    shape = CircleShape,
-                ),
-            model = user.avatarUrl,
-            contentDescription = null,
-            placeholder = painterResource(R.drawable.ic_item_user_avatar_placeholder),
-            error = painterResource(R.drawable.ic_item_user_avatar_placeholder)
-        )
-        Column(
-            modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .weight(1f)
-        ) {
-            Row {
-                Text(
-                    modifier = Modifier.placeholder(
-                        visible = viewState is MainViewState.InitialLoadingUsers,
-                        highlight = PlaceholderHighlight.fade(),
-                        shape = RoundedCornerShape(8.dp)
-                    ),
-                    text = "${user.firstName} ${user.lastName}",
-                    style = MaterialTheme.typography.subtitle2
-                )
-                Text(
-                    modifier = Modifier
-                        .padding(start = 4.dp)
-                        .align(Alignment.Bottom)
-                        .placeholder(
-                            visible = viewState is MainViewState.InitialLoadingUsers,
-                            highlight = PlaceholderHighlight.fade(),
-                            shape = RoundedCornerShape(8.dp)
-                        ),
-                    text = user.userTag,
-                    style = KodeTypography.Meta,
-                )
-            }
-            Text(
-                modifier = Modifier
-                    .padding(top = 6.dp)
-                    .placeholder(
-                        visible = viewState is MainViewState.InitialLoadingUsers,
-                        highlight = PlaceholderHighlight.fade(),
-                        shape = RoundedCornerShape(8.dp)
-                    ),
-                text = user.position,
-                style = KodeTypography.Subtitle
-            )
-        }
-        if (viewState is MainViewState.DisplayUsersByBirthday) {
-            BirthdayCaption(
-                modifier = Modifier
-                    .padding(20.dp)
-                    .align(Alignment.CenterVertically),
-                birthDay = user.birthday
-            )
-        }
-    }
-}
-
-@Composable
-fun UsersListDivider(modifier: Modifier, dividerText: String) {
-    Row(
-        modifier = modifier
-    ) {
-        Divider(
-            modifier = Modifier
-                .weight(0.2f)
-                .align(Alignment.CenterVertically)
-        )
-        Text(
-            modifier = Modifier
-                .weight(0.6f)
-                .alpha(0.4f),
-            textAlign = TextAlign.Center,
-            text = dividerText
-        )
-        Divider(
-            modifier = Modifier
-                .weight(0.2f)
-                .align(Alignment.CenterVertically)
-        )
-    }
-}
-
-@Composable
-fun BirthdayCaption(modifier: Modifier, birthDay: Date) {
-    val birthday = SimpleDateFormat("d MMM", Locale.getDefault())
-        .format(birthDay).lowercase()
-    Text(
-        modifier = modifier,
-        text = birthday,
-        style = KodeTypography.Detail
-    )
-}
-
-@Composable
 @Preview
-fun SearchFieldPreview() {
+private fun SearchFieldPreview() {
     val (text, setText) = remember { mutableStateOf("") }
     SearchField(text = text, onTextChange = setText, onFilterClick = {})
 }
 
 @Composable
 @Preview
-fun TabsPreview() {
+private fun TabsPreview() {
     DepartmentTabs(onTabClick = {})
 }
 
 @Composable
 @Preview(showBackground = true)
-fun ItemUserPlaceholderPreview() {
-    ItemUser(Modifier, MainViewState.InitialLoadingUsers(), mockUser)
+private fun EmptySearchPreview() {
+    EmptySearch()
 }
 
 @Composable
 @Preview(showBackground = true)
-fun ItemUserPreview() {
-    ItemUser(Modifier, MainViewState.CriticalError, mockUser)
+private fun PlaceholderUsersListPreview() {
+    PlaceholderUsersList()
 }
 
 @Composable
 @Preview(showBackground = true)
-fun ItemUserBirthdayPreview() {
-    ItemUser(
-        Modifier,
-        MainViewState.DisplayUsersByBirthday(
-            UsersManager.UsersBirthdayTuple(
-                emptyList(),
-                emptyList()
-            )
-        ),
-        mockUser
-    )
+private fun AlphabetUsersListPreview() {
+    AlphabetUsersList(users = mockUsers)
 }
 
 @Composable
 @Preview(showBackground = true)
-fun EmptySearchPreview() {
-    EmptySearchScreen()
-}
-
-@Composable
-@Preview
-fun UsersListDividerPreview() {
-    UsersListDivider(
-        modifier = Modifier.padding(24.dp),
-        dividerText = LocalDate.now().year.toString()
-    )
+private fun BirthdayUsersListPreview() {
+    BirthdayUsersList(beforeNewYear = mockUsers, afterNewYear = mockUsers)
 }

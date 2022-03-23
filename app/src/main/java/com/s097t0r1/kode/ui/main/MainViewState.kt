@@ -5,10 +5,10 @@ import com.s097t0r1.domain.entities.User
 import com.s097t0r1.kode.ui.main.managers.UsersManager
 
 sealed class MainViewState {
-    class InitialLoadingUsers(val users: List<User> = mockUsers) : MainViewState()
+    object InitialLoadingUsers : MainViewState() { val users: List<User> = mockUsers }
     object CriticalError : MainViewState()
-    data class DisplayUsersByAlphabetically(val users: List<User>) : MainViewState()
-    data class DisplayUsersByBirthday(val birthdayTuple: UsersManager.UsersBirthdayTuple) : MainViewState()
+    class DisplayUsersByAlphabetically(val users: List<User>) : MainViewState()
+    class DisplayUsersByBirthday(val birthdayTuple: UsersManager.UsersBirthdayTuple) : MainViewState()
     object EmptySearchResult : MainViewState()
 }
 

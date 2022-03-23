@@ -47,7 +47,7 @@ class MainViewModel(
 
     fun getUsers() {
         viewModelScope.launch {
-            _viewState.send(MainViewState.InitialLoadingUsers())
+            _viewState.send(MainViewState.InitialLoadingUsers)
             val usersResult = repository.getUsers()
             usersResult.fold(
                 onSuccess = { users -> usersManager.setUsers(users) },
