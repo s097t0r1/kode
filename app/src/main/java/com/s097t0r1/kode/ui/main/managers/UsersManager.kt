@@ -8,9 +8,8 @@ import kotlinx.coroutines.flow.StateFlow
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.TemporalAdjusters.lastDayOfYear
-import java.util.*
 
-class UsersManager() {
+class UsersManager {
 
     companion object {
         const val INDEX_OF_NAME_PREDICATE = 0
@@ -92,16 +91,6 @@ class UsersManager() {
     private fun filter(users: List<User>) =
         predicates.filterNotNull()
             .fold(users) { users, predicate -> users.filter(predicate) }
-
-    private val Date.monthValue: Int
-        get() {
-            val calendar = Calendar.getInstance(Locale.ROOT)
-            calendar.time = this
-            return calendar.get(Calendar.MONTH)
-        }
-
-    private fun Date.toCalendar() =
-        Calendar.getInstance().apply { time = this@toCalendar }
 
     enum class UsersSortingType {
         ALPHABETICALLY,
