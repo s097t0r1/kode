@@ -12,3 +12,8 @@ sealed class MainViewState {
     object EmptySearchResult : MainViewState()
 }
 
+sealed class MainViewEffect {
+    object Empty : MainViewEffect()
+    object OnSwipeRefresh : MainViewEffect()
+}
+

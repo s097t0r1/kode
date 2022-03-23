@@ -21,6 +21,9 @@ class MainViewModel(
     private val _viewState = Channel<MainViewState>(Channel.BUFFERED)
     val viewState = _viewState.receiveAsFlow()
 
+    private val _viewEffect = Channel<MainViewEffect>(Channel.BUFFERED)
+    val viewEffect = _viewEffect.receiveAsFlow()
+
     init {
         getUsers()
         usersManager.flow
@@ -28,17 +31,15 @@ class MainViewModel(
             .onEach { result ->
                 when (result) {
                     is UsersManager.Result.Alphabetically -> {
-                        if (result.value.isEmpty()) {
-                            _viewState.send(MainViewState.EmptySearchResult)
-                        } else {
-                            _viewState.send(MainViewState.DisplayUsersByAlphabetically(result.value))
+                        when {
+                            result.value.isEmpty() -> _viewState.send(MainViewState.EmptySearchResult)
+                            else -> _viewState.send(MainViewState.DisplayUsersByAlphabetically(result.value))
                         }
                     }
                     is UsersManager.Result.Birthday -> {
-                        if (result.value.isEmpty()) {
-                            _viewState.send(MainViewState.EmptySearchResult)
-                        } else {
-                            _viewState.send(MainViewState.DisplayUsersByBirthday(result.value))
+                        when {
+                            result.value.isEmpty() -> _viewState.send(MainViewState.EmptySearchResult)
+                            else -> _viewState.send(MainViewState.DisplayUsersByBirthday(result.value))
                         }
                     }
                 }
@@ -53,6 +54,18 @@ class MainViewModel(
                 onSuccess = { users -> usersManager.setUsers(users) },
                 onFailure = { throwable -> _viewState.send(MainViewState.CriticalError) }
             )
+        }
+    }
+
+    fun refreshUsers() {
+        viewModelScope.launch {
+            _viewEffect.send(MainViewEffect.OnSwipeRefresh)
+            val userResult = repository.getUsers()
+            userResult.fold(
+                onSuccess = { users -> usersManager.setUsers(users) },
+                onFailure = {}
+            )
+            _viewEffect.send(MainViewEffect.Empty)
         }
     }
 

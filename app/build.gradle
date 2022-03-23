@@ -69,6 +69,7 @@ dependencies {
 
     // Accompanist
     implementation ("com.google.accompanist:accompanist-placeholder-material:$accompanist_version")
+    implementation ("com.google.accompanist:accompanist-swiperefresh:$accompanist_version")
 
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 }

@@ -16,6 +16,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.s097t0r1.data.mock.mockUsers
 import com.s097t0r1.domain.entities.Department
 import com.s097t0r1.kode.R
@@ -33,13 +35,18 @@ class MainActivity : ComponentActivity() {
         setContent {
             KodeTheme {
                 Scaffold {
+
                     val viewState by viewModel.viewState.collectAsState(MainViewState.InitialLoadingUsers)
+                    val viewEffect by viewModel.viewEffect.collectAsState(MainViewEffect.Empty)
+
                     MainScreen(
                         viewState = viewState,
+                        viewEffect = viewEffect,
                         onFilterClick = {},
                         onTabClick = viewModel::setDepartment,
                         onRetryClick = viewModel::getUsers,
-                        onSearch = viewModel::setSearchQuery
+                        onSearch = viewModel::setSearchQuery,
+                        onRefresh = viewModel::refreshUsers
                     )
                 }
             }
@@ -50,19 +57,23 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun MainScreen(
     viewState: MainViewState,
+    viewEffect: MainViewEffect,
     onFilterClick: () -> Unit,
     onTabClick: (Department?) -> Unit,
     onRetryClick: () -> Unit,
-    onSearch: (String) -> Unit
+    onSearch: (String) -> Unit,
+    onRefresh: () -> Unit
 ) {
 
     when (viewState) {
         MainViewState.CriticalError -> MainErrorScreen(onRetryClick = onRetryClick)
         else -> MainContentScreen(
             viewState = viewState,
+            viewEffect = viewEffect,
             onFilterClick = onFilterClick,
             onTabClick = onTabClick,
-            onSearch = onSearch
+            onSearch = onSearch,
+            onRefresh = onRefresh
         )
     }
 }
@@ -71,11 +82,14 @@ private fun MainScreen(
 private fun MainContentScreen(
     modifier: Modifier = Modifier,
     viewState: MainViewState,
+    viewEffect: MainViewEffect,
     onFilterClick: () -> Unit,
     onTabClick: (Department?) -> Unit,
-    onSearch: (String) -> Unit
+    onSearch: (String) -> Unit,
+    onRefresh: () -> Unit
 ) {
     val (searchText, setSearchText) = remember { mutableStateOf("") }
+
     Column(modifier = modifier) {
         SearchField(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 22.dp),
@@ -89,17 +103,17 @@ private fun MainContentScreen(
         DepartmentTabs(onTabClick)
         when (viewState) {
             is MainViewState.InitialLoadingUsers -> PlaceholderUsersList()
-            is MainViewState.DisplayUsersByAlphabetically -> AlphabetUsersList(users = viewState.users)
-            is MainViewState.DisplayUsersByBirthday -> BirthdayUsersList(
-                beforeNewYear = viewState.birthdayTuple.currentYear,
-                afterNewYear = viewState.birthdayTuple.nextYear
-            )
             is MainViewState.EmptySearchResult -> EmptySearch(Modifier.fillMaxSize())
-            else -> throw IllegalStateException("Illegal view state in MainContentScreen: " + viewState::class)
+            else -> {
+                MainRefreshableContentScreen(
+                    viewState = viewState,
+                    viewEffect = viewEffect,
+                    onRefresh = onRefresh
+                )
+            }
         }
     }
 }
-
 
 @Composable
 private fun MainErrorScreen(
@@ -130,15 +144,39 @@ private fun MainErrorScreen(
     }
 }
 
+@Composable
+fun MainRefreshableContentScreen(
+    viewState: MainViewState,
+    viewEffect: MainViewEffect,
+    onRefresh: () -> Unit
+) {
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(viewEffect is MainViewEffect.OnSwipeRefresh),
+        onRefresh = onRefresh
+    ) {
+        when (viewState) {
+            is MainViewState.DisplayUsersByAlphabetically -> AlphabetUsersList(users = viewState.users)
+            is MainViewState.DisplayUsersByBirthday -> BirthdayUsersList(
+                beforeNewYear = viewState.birthdayTuple.currentYear,
+                afterNewYear = viewState.birthdayTuple.nextYear
+            )
+            else -> throw IllegalStateException("Illegal state for viewState" + viewState::class)
+        }
+    }
+
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun MainErrorScreenPreview() {
     MainScreen(
         viewState = MainViewState.CriticalError,
+        viewEffect = MainViewEffect.Empty,
         onFilterClick = {},
         onTabClick = {},
         onRetryClick = {},
         onSearch = {},
+        onRefresh = {}
     )
 }
 
@@ -147,10 +185,12 @@ private fun MainErrorScreenPreview() {
 private fun MainEmptySearch() {
     MainScreen(
         viewState = MainViewState.EmptySearchResult,
+        viewEffect = MainViewEffect.Empty,
         onFilterClick = { /*TODO*/ },
         onTabClick = {},
         onSearch = {},
-        onRetryClick = {}
+        onRetryClick = {},
+        onRefresh = {}
     )
 }
 
@@ -159,10 +199,12 @@ private fun MainEmptySearch() {
 private fun MainInitialLoadingPreview() {
     MainScreen(
         viewState = MainViewState.InitialLoadingUsers,
+        viewEffect = MainViewEffect.Empty,
         onFilterClick = {},
         onTabClick = {},
         onSearch = {},
-        onRetryClick = {}
+        onRetryClick = {},
+        onRefresh = {}
     )
 }
 
@@ -171,10 +213,12 @@ private fun MainInitialLoadingPreview() {
 private fun MainDisplayUsersByAlphabetically() {
     MainScreen(
         viewState = MainViewState.DisplayUsersByAlphabetically(mockUsers),
+        viewEffect = MainViewEffect.Empty,
         onFilterClick = { /*TODO*/ },
         onTabClick = {},
         onSearch = {},
-        onRetryClick = {}
+        onRetryClick = {},
+        onRefresh = {}
     )
 }
 
@@ -188,9 +232,25 @@ private fun MainDisplayUsersByBirthday() {
                 mockUsers
             )
         ),
+        viewEffect = MainViewEffect.Empty  ,
+        onFilterClick = {},
+        onTabClick = {},
+        onSearch = {},
+        onRetryClick = {},
+        onRefresh = {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MainRefreshUsers() {
+    MainScreen(
+        viewState = MainViewState.DisplayUsersByAlphabetically(mockUsers),
+        viewEffect = MainViewEffect.OnSwipeRefresh,
         onFilterClick = { /*TODO*/ },
         onTabClick = {},
         onSearch = {},
-        onRetryClick = {}
+        onRetryClick = {},
+        onRefresh = {}
     )
 }
