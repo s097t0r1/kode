@@ -6,24 +6,20 @@ import com.s097t0r1.domain.entities.Department
 import com.s097t0r1.domain.repository.UsersRepository
 import com.s097t0r1.kode.ui.main.components.SortingType
 import com.s097t0r1.kode.ui.main.managers.UsersManager
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-class MainViewModel(
+class MainViewModel (
     private val repository: UsersRepository
 ) : ViewModel() {
 
     private val usersManager = UsersManager()
 
-    private val _viewState = Channel<MainViewState>(Channel.BUFFERED)
-    val viewState = _viewState.receiveAsFlow()
+    private val _viewState = MutableStateFlow<MainViewState>(MainViewState.InitialLoadingUsers)
+    val viewState: StateFlow<MainViewState> = _viewState
 
-    private val _viewEffect = Channel<MainViewEffect>(Channel.BUFFERED)
-    val viewEffect = _viewEffect.receiveAsFlow()
+    private val _viewEffect = MutableStateFlow<MainViewEffect>(MainViewEffect.Empty)
+    val viewEffect: StateFlow<MainViewEffect> = _viewEffect
 
     init {
         getUsers()
@@ -33,14 +29,14 @@ class MainViewModel(
                 when (result) {
                     is UsersManager.Result.Alphabetically -> {
                         when {
-                            result.value.isEmpty() -> _viewState.send(MainViewState.EmptySearchResult)
-                            else -> _viewState.send(MainViewState.DisplayUsersByAlphabetically(result.value))
+                            result.value.isEmpty() -> _viewState.emit(MainViewState.EmptySearchResult)
+                            else -> _viewState.emit(MainViewState.DisplayUsersByAlphabetically(result.value))
                         }
                     }
                     is UsersManager.Result.Birthday -> {
                         when {
-                            result.value.isEmpty() -> _viewState.send(MainViewState.EmptySearchResult)
-                            else -> _viewState.send(MainViewState.DisplayUsersByBirthday(result.value))
+                            result.value.isEmpty() -> _viewState.emit(MainViewState.EmptySearchResult)
+                            else -> _viewState.emit(MainViewState.DisplayUsersByBirthday(result.value))
                         }
                     }
                 }
@@ -49,24 +45,24 @@ class MainViewModel(
 
     fun getUsers() {
         viewModelScope.launch {
-            _viewState.send(MainViewState.InitialLoadingUsers)
+            _viewState.emit(MainViewState.InitialLoadingUsers)
             val usersResult = repository.getUsers()
             usersResult.fold(
                 onSuccess = { users -> usersManager.setUsers(users) },
-                onFailure = { throwable -> _viewState.send(MainViewState.CriticalError) }
+                onFailure = { throwable -> _viewState.emit(MainViewState.CriticalError) }
             )
         }
     }
 
     fun refreshUsers() {
         viewModelScope.launch {
-            _viewEffect.send(MainViewEffect.OnSwipeRefresh)
+            _viewEffect.emit(MainViewEffect.OnSwipeRefresh)
             val userResult = repository.getUsers()
             userResult.fold(
                 onSuccess = { users -> usersManager.setUsers(users) },
                 onFailure = {}
             )
-            _viewEffect.send(MainViewEffect.Empty)
+            _viewEffect.emit(MainViewEffect.Empty)
         }
     }
 
