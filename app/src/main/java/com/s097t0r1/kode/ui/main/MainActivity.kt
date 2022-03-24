@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -87,7 +88,7 @@ private fun MainContentScreen(
     onSearch: (String) -> Unit,
     onRefresh: () -> Unit
 ) {
-    val (searchText, setSearchText) = remember { mutableStateOf("") }
+    val (searchText, setSearchText) = rememberSaveable { mutableStateOf("") }
 
     val coroutineScope = rememberCoroutineScope()
     val bottomSheetState = rememberModalBottomSheetState(
