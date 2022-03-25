@@ -1,5 +1,6 @@
 package com.s097t0r1.kode.ui.main.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -120,7 +121,7 @@ fun SearchField(
             onFilterClick = onFilterClick,
             onCrossClick = { onTextChange("") }
         )
-        if (isFocused) {
+         AnimatedVisibility(isFocused) {
             TextButton(
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
