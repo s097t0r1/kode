@@ -25,7 +25,7 @@ class UsersManager {
     private val _flow = MutableStateFlow<Result>(Result.Initial)
     val flow: StateFlow<Result> = _flow
 
-    private val predicates: Array<((User) -> Boolean)?> = Array(SIZE_OF_PREDICATES_ARRAY) { null }
+    private val predicates: Array<((User) -> Boolean)> = Array(SIZE_OF_PREDICATES_ARRAY) { { true } }
 
     fun setUsers(newUsers: List<User>) {
         if (users == newUsers) return
@@ -90,8 +90,7 @@ class UsersManager {
     }
 
     private fun filter(users: List<User>) =
-        predicates.filterNotNull()
-            .fold(users) { users, predicate -> users.filter(predicate) }
+        predicates.fold(users) { users, predicate -> users.filter(predicate) }
 
 
     sealed class Result {
