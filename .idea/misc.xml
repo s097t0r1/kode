@@ -3,6 +3,10 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/usr/AndroidStudioProjects/kode/app/src/main/res/drawable/ic_filter.xml" value="0.209" />
+        <entry key="..\:/Users/usr/AndroidStudioProjects/kode/app/src/main/res/drawable/ic_launcher_foreground.xml" value="0.196" />
+        <entry key="..\:/Users/usr/AndroidStudioProjects/kode/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.196" />
+        <entry key="..\:/Users/usr/AndroidStudioProjects/kode/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.196" />
         <entry key="..\:/Users/zmitr/AndroidStudioProjects/kode/app/src/main/res/drawable/ic_filter.xml" value="0.196" />
         <entry key="..\:/Users/zmitr/AndroidStudioProjects/kode/app/src/main/res/drawable/ic_search.xml" value="0.196" />
         <entry key="..\:/Users/zmitr/AndroidStudioProjects/kode/app/src/main/res/drawable/ic_vector.xml" value="0.196" />

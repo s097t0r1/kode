@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">kode</string>
+    <string name="app_name">Кодер</string>
     <string name="search_bar_placeholder">Введите имя, тег, почту…</string>
     <string name="search_field_cancel">Отмена</string>
 
