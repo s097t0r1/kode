@@ -1,10 +1,15 @@
 package com.s097t0r1.kode.ui.details
 
+import android.content.Intent
+import android.net.Uri
 import android.telephony.PhoneNumberUtils
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -15,10 +20,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.s097t0r1.data.mock.mockUser
-import com.s097t0r1.data.model.DataUser
-import com.s097t0r1.data.model.toDomainModel
+import com.google.accompanist.placeholder.material.placeholder
 import com.s097t0r1.domain.entities.User
 import com.s097t0r1.kode.R
 import com.s097t0r1.kode.ui.theme.KodeTypography
@@ -27,32 +31,44 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
 
+const val DETAILS_ARGUMENT_USER_KEY = "details_user"
 const val DETAILS_SCREEN = "details_screen"
 
 @Composable
-fun DetailsScreen(user: DataUser?) {
+fun DetailsScreen(navController: NavHostController, id: String) {
 
     val viewModel: DetailsViewModel by viewModel()
+    val viewState by viewModel.viewState.collectAsState()
 
-    DetailsScreen(user!!.toDomainModel())
+    viewModel.getUser(id)
+
+    DetailsScreen(
+        viewState = viewState,
+        onBackButton = { navController.popBackStack() }
+    )
 }
 
 @Composable
-private fun DetailsScreen(user: User) {
+private fun DetailsScreen(viewState: DetailsViewState, onBackButton: () -> Unit) {
     Column {
         DetailsHeader(
             modifier = Modifier.fillMaxWidth(),
-            user = user
+            viewState = viewState,
+            onBackButton = onBackButton
         )
         DetailsBody(
             modifier = Modifier.padding(horizontal = 20.dp),
-            user = user
+            viewState = viewState
         )
     }
 }
 
 @Composable
-private fun DetailsHeader(modifier: Modifier = Modifier, user: User) {
+private fun DetailsHeader(
+    modifier: Modifier = Modifier,
+    viewState: DetailsViewState,
+    onBackButton: () -> Unit
+) {
     Surface(
         modifier = modifier,
         color = Color(0xFFF7F7F8)
@@ -60,7 +76,7 @@ private fun DetailsHeader(modifier: Modifier = Modifier, user: User) {
         Box {
             IconButton(
                 modifier = Modifier.align(Alignment.TopStart),
-                onClick = {}
+                onClick = { onBackButton() }
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_back),
@@ -76,31 +92,36 @@ private fun DetailsHeader(modifier: Modifier = Modifier, user: User) {
                 AsyncImage(
                     modifier = Modifier
                         .size(104.dp)
-                        .clip(CircleShape),
-                    model = user.avatarUrl,
+                        .clip(CircleShape)
+                        .placeholder(visible = viewState.isLoading),
+                    model = viewState.user.avatarUrl,
                     error = painterResource(id = R.drawable.ic_item_user_avatar_placeholder),
                     placeholder = painterResource(id = R.drawable.ic_item_user_avatar_placeholder),
                     contentDescription = null
                 )
                 Spacer(modifier = Modifier.height(24.dp))
-                Row {
+                Row(
+                    modifier = Modifier.placeholder(visible = viewState.isLoading)
+                ) {
                     Text(
-                        text = "${user.firstName} ${user.lastName}",
+                        text = "${viewState.user.firstName} ${viewState.user.lastName}",
                         fontSize = 24.sp,
                         style = MaterialTheme.typography.subtitle2
                     )
                     Text(
                         modifier = Modifier
-                            .align(Alignment.CenterVertically)
-                            .padding(start = 4.dp),
-                        text = user.userTag,
+                            .padding(start = 4.dp)
+                            .align(Alignment.CenterVertically),
+                        text = viewState.user.userTag,
                         style = KodeTypography.Meta,
                         fontSize = 17.sp
                     )
                 }
                 Text(
-                    modifier = Modifier.padding(12.dp),
-                    text = user.position,
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .placeholder(visible = viewState.isLoading),
+                    text = viewState.user.position,
                     style = KodeTypography.Subtitle
                 )
             }
@@ -109,36 +130,49 @@ private fun DetailsHeader(modifier: Modifier = Modifier, user: User) {
 }
 
 @Composable
-fun DetailsBody(modifier: Modifier = Modifier, user: User) {
+fun DetailsBody(modifier: Modifier = Modifier, viewState: DetailsViewState) {
     Column(
         modifier = modifier
     ) {
         val simpleDateFormat = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
         DetailsItem(
-            modifier = Modifier.padding(vertical = 26.dp),
+            modifier = Modifier
+                .padding(vertical = 26.dp)
+                .placeholder(visible = viewState.isLoading),
             painter = painterResource(id = R.drawable.ic_star),
-            text = simpleDateFormat.format(user.birthday)
+            text = simpleDateFormat.format(viewState.user.birthday)
         ) {
             Text(
                 text = LocalContext.current.resources.getQuantityString(
                     R.plurals.ages,
-                    user.age,
-                    user.age
+                    viewState.user.age,
+                    viewState.user.age
                 ),
                 style = KodeTypography.Detail
             )
         }
         Divider(thickness = 0.5.dp)
+        val context = LocalContext.current
         DetailsItem(
-            modifier = Modifier.padding(vertical = 26.dp),
+            modifier = Modifier
+                .clickable {
+                    if (!viewState.isLoading) {
+                        context.startActivity(
+                            Intent(Intent.ACTION_DIAL).setData(Uri.parse("tel:${viewState.user.phone}"))
+                        )
+                    }
+                }
+                .padding(vertical = 26.dp)
+                .placeholder(visible = viewState.isLoading),
+
             painter = painterResource(id = R.drawable.ic_phone),
-            text = PhoneNumberUtils.formatNumber(user.phone, Locale.getDefault().country)
+            text = PhoneNumberUtils.formatNumber(viewState.user.phone, Locale.getDefault().country)
         )
     }
 }
 
 private val User.age
-    get() = ((Date().time - this.birthday.time) * 3.17E-10).roundToInt()
+    get() = ((Date().time - this.birthday.time) * 3.17E-11).roundToInt()
 
 @Composable
 fun DetailsItem(
@@ -165,6 +199,12 @@ fun DetailsItem(
 
 @Preview
 @Composable
-private fun DetailsScreenPreview() {
-    DetailsScreen(mockUser)
+private fun DetailsScreenLoadingPreview() {
+    DetailsScreen(DetailsViewState(), {})
+}
+
+@Preview
+@Composable
+private fun DetailsScreen() {
+    DetailsScreen(DetailsViewState(isLoading = false), {})
 }

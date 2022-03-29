@@ -11,11 +11,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.s097t0r1.data.mock.mockUsers
 import com.s097t0r1.domain.entities.Department
+import com.s097t0r1.domain.entities.User
 import com.s097t0r1.kode.R
+import com.s097t0r1.kode.ui.details.DETAILS_ARGUMENT_USER_KEY
+import com.s097t0r1.kode.ui.details.DETAILS_SCREEN
 import com.s097t0r1.kode.ui.main.components.*
 import com.s097t0r1.kode.ui.main.managers.UsersManager
 import kotlinx.coroutines.launch
@@ -24,7 +28,7 @@ import org.koin.androidx.compose.viewModel
 const val MAIN_SCREEN = "main_screen"
 
 @Composable
-fun MainScreen() {
+fun MainScreen(navController: NavController) {
     val viewModel: MainViewModel by viewModel()
 
     val viewState by viewModel.viewState.collectAsState()
@@ -37,7 +41,14 @@ fun MainScreen() {
         onSortingTypeSelect = viewModel::setSortingType,
         onTabClick = viewModel::setDepartment,
         onSearch = viewModel::setSearchQuery,
-        onSwipeRefresh = viewModel::refreshUsers
+        onSwipeRefresh = viewModel::refreshUsers,
+        onItemClick = {
+            navController.previousBackStackEntry?.arguments?.putString(
+                DETAILS_ARGUMENT_USER_KEY,
+                it.id
+            )
+            navController.navigate("$DETAILS_SCREEN/" + it.id)
+        }
     )
 
 }
@@ -50,7 +61,8 @@ private fun MainScreen(
     onSortingTypeSelect: (SortingType) -> Unit,
     onTabClick: (Department?) -> Unit,
     onSearch: (String) -> Unit,
-    onSwipeRefresh: () -> Unit
+    onSwipeRefresh: () -> Unit,
+    onItemClick: (User) -> Unit
 ) {
     when (viewState) {
         MainViewState.CriticalError -> CriticalError(onRetryClick = onRetryClick)
@@ -60,7 +72,8 @@ private fun MainScreen(
             onSortTypeSelect = onSortingTypeSelect,
             onTabClick = onTabClick,
             onSearch = onSearch,
-            onRefresh = onSwipeRefresh
+            onRefresh = onSwipeRefresh,
+            onItemClick = onItemClick
         )
     }
 }
@@ -74,7 +87,8 @@ private fun MainContent(
     onSortTypeSelect: (SortingType) -> Unit,
     onTabClick: (Department?) -> Unit,
     onSearch: (String) -> Unit,
-    onRefresh: () -> Unit
+    onRefresh: () -> Unit,
+    onItemClick: (User) -> Unit
 ) {
     val (searchText, setSearchText) = rememberSaveable { mutableStateOf("") }
 
@@ -114,7 +128,8 @@ private fun MainContent(
                     RefreshableContentScreen(
                         viewState = viewState,
                         viewEffect = viewEffect,
-                        onRefresh = onRefresh
+                        onRefresh = onRefresh,
+                        onItemClick = onItemClick
                     )
                 }
             }
@@ -155,17 +170,22 @@ private fun CriticalError(
 private fun RefreshableContentScreen(
     viewState: MainViewState,
     viewEffect: MainViewEffect,
-    onRefresh: () -> Unit
+    onRefresh: () -> Unit,
+    onItemClick: (User) -> Unit
 ) {
     SwipeRefresh(
         state = rememberSwipeRefreshState(viewEffect is MainViewEffect.OnSwipeRefresh),
         onRefresh = onRefresh
     ) {
         when (viewState) {
-            is MainViewState.DisplayUsersByAlphabetically -> AlphabetUsersList(users = viewState.users)
+            is MainViewState.DisplayUsersByAlphabetically -> AlphabetUsersList(
+                users = viewState.users,
+                onItemClick = onItemClick
+            )
             is MainViewState.DisplayUsersByBirthday -> BirthdayUsersList(
                 beforeNewYear = viewState.birthdayTuple.currentYear,
-                afterNewYear = viewState.birthdayTuple.nextYear
+                afterNewYear = viewState.birthdayTuple.nextYear,
+                onItemClick = onItemClick
             )
             else -> throw IllegalStateException("Illegal state for viewState" + viewState::class)
         }
@@ -183,7 +203,8 @@ private fun MainErrorScreenPreview() {
         onTabClick = {},
         onRetryClick = {},
         onSearch = {},
-        onSwipeRefresh = {}
+        onSwipeRefresh = {},
+        onItemClick = {}
     )
 }
 
@@ -197,7 +218,8 @@ private fun MainEmptySearch() {
         onTabClick = {},
         onSearch = {},
         onRetryClick = {},
-        onSwipeRefresh = {}
+        onSwipeRefresh = {},
+        onItemClick = {}
     )
 }
 
@@ -211,7 +233,8 @@ private fun MainInitialLoadingPreview() {
         onTabClick = {},
         onSearch = {},
         onRetryClick = {},
-        onSwipeRefresh = {}
+        onSwipeRefresh = {},
+        onItemClick = {}
     )
 }
 
@@ -225,7 +248,8 @@ private fun MainDisplayUsersByAlphabetically() {
         onTabClick = {},
         onSearch = {},
         onRetryClick = {},
-        onSwipeRefresh = {}
+        onSwipeRefresh = {},
+        onItemClick = {}
     )
 }
 
@@ -244,7 +268,8 @@ private fun MainDisplayUsersByBirthday() {
         onTabClick = {},
         onSearch = {},
         onRetryClick = {},
-        onSwipeRefresh = {}
+        onSwipeRefresh = {},
+        onItemClick = {}
     )
 }
 
@@ -258,6 +283,7 @@ private fun MainRefreshUsers() {
         onTabClick = {},
         onSearch = {},
         onRetryClick = {},
-        onSwipeRefresh = {}
+        onSwipeRefresh = {},
+        onItemClick = {}
     )
 }

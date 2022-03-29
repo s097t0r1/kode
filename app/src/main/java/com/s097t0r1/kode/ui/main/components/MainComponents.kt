@@ -166,14 +166,16 @@ fun DepartmentTabs(onTabClick: (Department?) -> Unit) {
 @Composable
 fun AlphabetUsersList(
     modifier: Modifier = Modifier,
-    users: List<User>
+    users: List<User>,
+    onItemClick: (User) -> Unit
 ) {
     LazyColumn(modifier) {
         items(users) { user ->
             ItemUser(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .clickable { onItemClick(user) },
                 user = user
             )
         }
@@ -184,13 +186,15 @@ fun AlphabetUsersList(
 fun BirthdayUsersList(
     modifier: Modifier = Modifier,
     beforeNewYear: List<User>,
-    afterNewYear: List<User>
+    afterNewYear: List<User>,
+    onItemClick: (User) -> Unit
 ) {
     LazyColumn(modifier) {
         items(beforeNewYear) { user ->
             BirthdayItemUser(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .clickable { onItemClick(user) }
                     .padding(16.dp),
                 user = user
             )
@@ -205,6 +209,7 @@ fun BirthdayUsersList(
             BirthdayItemUser(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .clickable { onItemClick(user) }
                     .padding(16.dp),
                 user = user
             )
@@ -358,13 +363,13 @@ private fun PlaceholderUsersListPreview() {
 @Composable
 @Preview(showBackground = true)
 private fun AlphabetUsersListPreview() {
-    AlphabetUsersList(users = mockUsers)
+    AlphabetUsersList(users = mockUsers, onItemClick = {})
 }
 
 @Composable
 @Preview(showBackground = true)
 private fun BirthdayUsersListPreview() {
-    BirthdayUsersList(beforeNewYear = mockUsers, afterNewYear = mockUsers)
+    BirthdayUsersList(beforeNewYear = mockUsers, afterNewYear = mockUsers, onItemClick = {})
 }
 
 @Composable

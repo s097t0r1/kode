@@ -9,7 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.s097t0r1.data.model.DataUser
+import com.s097t0r1.kode.ui.details.DETAILS_ARGUMENT_USER_KEY
 import com.s097t0r1.kode.ui.details.DETAILS_SCREEN
 import com.s097t0r1.kode.ui.details.DetailsScreen
 import com.s097t0r1.kode.ui.main.MAIN_SCREEN
@@ -25,14 +25,18 @@ class MainActivity : ComponentActivity() {
             KodeTheme {
                 Scaffold {
                     NavHost(navController = navController, startDestination = MAIN_SCREEN) {
-                        composable(MAIN_SCREEN) { MainScreen() }
+                        composable(MAIN_SCREEN) { MainScreen(navController) }
                         composable(
-                            DETAILS_SCREEN,
-                            arguments = listOf(navArgument("user") {
-                                type = NavType.ParcelableType(DataUser::class.java)
+                            "$DETAILS_SCREEN/{$DETAILS_ARGUMENT_USER_KEY}",
+                            arguments = listOf(navArgument(DETAILS_ARGUMENT_USER_KEY) {
+                                type = NavType.StringType
                             })
                         ) { navBackStackEntry ->
-                            DetailsScreen(navBackStackEntry.arguments?.getParcelable("user"))
+                            val userId =
+                                navBackStackEntry.arguments?.getString(
+                                    DETAILS_ARGUMENT_USER_KEY
+                                )
+                            DetailsScreen(navController, userId!!)
                         }
                     }
                 }
