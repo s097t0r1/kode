@@ -27,4 +27,12 @@
     <string name="sorting_title">Сортировка</string>
     <string name="sorting_by_alphabet">По алфавиту</string>
     <string name="sorting_by_birthday">По дню рождения</string>
+    
+    <plurals name="ages">
+        <item quantity="one">%d год</item>
+        <item quantity="two">%d года</item>
+        <item quantity="few">%d лет</item>
+        <item quantity="many">%d лет</item>
+        <item quantity="other">%d лет</item>
+    </plurals>
 </resources>
