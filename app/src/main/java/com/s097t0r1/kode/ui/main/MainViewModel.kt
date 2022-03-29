@@ -2,7 +2,7 @@ package com.s097t0r1.kode.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.s097t0r1.domain.entities.Department
+import com.s097t0r1.domain.models.Department
 import com.s097t0r1.domain.repository.UsersRepository
 import com.s097t0r1.kode.ui.main.components.SortingType
 import com.s097t0r1.kode.ui.main.managers.UsersManager

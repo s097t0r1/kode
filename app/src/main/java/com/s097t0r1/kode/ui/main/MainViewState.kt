@@ -1,7 +1,7 @@
 package com.s097t0r1.kode.ui.main
 
 import com.s097t0r1.data.mock.mockUsers
-import com.s097t0r1.domain.entities.User
+import com.s097t0r1.domain.models.User
 import com.s097t0r1.kode.ui.main.managers.UsersManager
 
 sealed class MainViewState {

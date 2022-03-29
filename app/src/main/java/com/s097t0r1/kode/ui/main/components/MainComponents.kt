@@ -23,8 +23,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.s097t0r1.data.mock.mockUsers
-import com.s097t0r1.domain.entities.Department
-import com.s097t0r1.domain.entities.User
+import com.s097t0r1.domain.models.Department
+import com.s097t0r1.domain.models.User
 import com.s097t0r1.kode.R
 import java.util.*
 

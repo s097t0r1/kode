@@ -16,10 +16,9 @@ class DetailsViewModel(
 
     fun getUser(id: String) {
         viewModelScope.launch {
-            repository.getUsers().fold(
+            repository.getUser(id).fold(
                 onSuccess = {
-                    val user = it.find { user -> user.id == id }!!
-                    _viewState.value = _viewState.value.copy(isLoading = false, user = user)
+                    _viewState.value = _viewState.value.copy(isLoading = false, user = it)
                 },
                 onFailure = {}
             )

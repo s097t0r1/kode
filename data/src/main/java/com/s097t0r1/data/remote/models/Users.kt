@@ -1,4 +1,4 @@
-package com.s097t0r1.data.remote.entity
+package com.s097t0r1.data.remote.models
 
 import kotlinx.serialization.Serializable
 

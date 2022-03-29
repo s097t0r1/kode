@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.google.accompanist.placeholder.material.placeholder
-import com.s097t0r1.domain.entities.User
+import com.s097t0r1.domain.models.User
 import com.s097t0r1.kode.R
 import com.s097t0r1.kode.ui.theme.KodeTypography
 import org.koin.androidx.compose.viewModel

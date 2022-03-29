@@ -1,8 +1,8 @@
 package com.s097t0r1.domain.sources
 
-import com.s097t0r1.domain.entities.User
+import com.s097t0r1.domain.models.User
 
-interface UsersDataSource {
+interface RemoteUsersDataSource {
 
     suspend fun getUsers(): Result<List<User>>
 

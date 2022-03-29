@@ -1,4 +1,4 @@
-package com.s097t0r1.domain.entities
+package com.s097t0r1.domain.models
 
 enum class Department(value: String) {
     ANDROID("android"),

@@ -1,6 +1,5 @@
 package com.s097t0r1.domain.usecases
 
-import com.s097t0r1.domain.entities.User
 import com.s097t0r1.domain.repository.UsersRepository
 
 class GetUsersUseCase(private val usersRepository: UsersRepository) {

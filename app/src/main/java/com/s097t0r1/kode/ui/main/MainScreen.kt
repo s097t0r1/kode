@@ -15,8 +15,8 @@ import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.s097t0r1.data.mock.mockUsers
-import com.s097t0r1.domain.entities.Department
-import com.s097t0r1.domain.entities.User
+import com.s097t0r1.domain.models.Department
+import com.s097t0r1.domain.models.User
 import com.s097t0r1.kode.R
 import com.s097t0r1.kode.ui.details.DETAILS_ARGUMENT_USER_KEY
 import com.s097t0r1.kode.ui.details.DETAILS_SCREEN

@@ -1,6 +1,6 @@
 package com.s097t0r1.kode.ui.main.managers
 
-import com.s097t0r1.domain.entities.User
+import com.s097t0r1.domain.models.User
 import com.s097t0r1.kode.ui.main.components.SortingType
 import com.s097t0r1.kode.utils.toDate
 import com.s097t0r1.kode.utils.toLocalDate

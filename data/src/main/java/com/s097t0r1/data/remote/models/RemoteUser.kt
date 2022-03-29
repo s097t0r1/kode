@@ -1,7 +1,7 @@
-package com.s097t0r1.data.remote.entity
+package com.s097t0r1.data.remote.models
 
-import com.s097t0r1.domain.entities.Department
-import com.s097t0r1.domain.entities.User
+import com.s097t0r1.domain.models.Department
+import com.s097t0r1.domain.models.User
 import kotlinx.serialization.Serializable
 import java.text.SimpleDateFormat
 import java.util.*

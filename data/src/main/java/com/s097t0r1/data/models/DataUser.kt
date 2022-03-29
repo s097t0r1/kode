@@ -1,8 +1,8 @@
-package com.s097t0r1.data.model
+package com.s097t0r1.data.models
 
 import android.os.Parcelable
-import com.s097t0r1.domain.entities.Department
-import com.s097t0r1.domain.entities.User
+import com.s097t0r1.domain.models.Department
+import com.s097t0r1.domain.models.User
 import kotlinx.parcelize.Parcelize
 import java.util.*
 

@@ -1,4 +1,4 @@
-package com.s097t0r1.domain.entities
+package com.s097t0r1.domain.models
 
 import java.util.*
 
