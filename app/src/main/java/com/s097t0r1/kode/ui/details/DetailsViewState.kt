@@ -9,3 +9,7 @@ data class DetailsViewState(
 
     val user: User = mockUser
 )
+
+sealed class DetailsEvents {
+    class GettingUser(val user: User) : DetailsEvents()
+}
