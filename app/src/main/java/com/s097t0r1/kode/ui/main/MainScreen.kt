@@ -101,6 +101,7 @@ private fun MainContent(
         sheetState = bottomSheetState,
         sheetContent = {
             SortingBottomSheet(
+                currentSortingType = viewState.currentSortingType,
                 onSortingTypeSelect = {
                     onSortTypeSelect(it)
                     coroutineScope.launch { bottomSheetState.hide() }

@@ -123,7 +123,7 @@ fun SearchField(
             onFilterClick = onFilterClick,
             onCrossClick = { onTextChange("") }
         )
-         AnimatedVisibility(isFocused) {
+        AnimatedVisibility(isFocused) {
             TextButton(
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
@@ -261,9 +261,11 @@ fun EmptySearch(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun SortingBottomSheet(modifier: Modifier = Modifier, onSortingTypeSelect: (SortingType) -> Unit) {
-
-    val (currentSortingType, setCurrentSortingType) = remember { mutableStateOf(SortingType.ALPHABETICALLY) }
+fun SortingBottomSheet(
+    modifier: Modifier = Modifier,
+    currentSortingType: SortingType,
+    onSortingTypeSelect: (SortingType) -> Unit
+) {
 
     Column(
         modifier = modifier
@@ -295,7 +297,6 @@ fun SortingBottomSheet(modifier: Modifier = Modifier, onSortingTypeSelect: (Sort
                     isChecked = it == currentSortingType,
                     onSelect = { type ->
                         onSortingTypeSelect(type)
-                        setCurrentSortingType(type)
                     }
                 )
             }
@@ -377,7 +378,7 @@ private fun BirthdayUsersListPreview() {
 @Composable
 @Preview(showBackground = true)
 private fun SortBottomSheetPreview() {
-    SortingBottomSheet(onSortingTypeSelect = {})
+    SortingBottomSheet(onSortingTypeSelect = {}, currentSortingType = SortingType.ALPHABETICALLY)
 }
 
 @Composable
