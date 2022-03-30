@@ -1,5 +1,6 @@
 package com.s097t0r1.data.repository
 
+import com.s097t0r1.domain.Result
 import com.s097t0r1.domain.models.User
 import com.s097t0r1.domain.repository.UsersRepository
 import com.s097t0r1.domain.sources.LocalUsersDataSource
@@ -14,8 +15,8 @@ class UsersRepositoryImpl(
 
     override suspend fun getUsers(): Result<List<User>> = withContext(Dispatchers.Default) {
         val remoteResult = remoteUsersDataSource.getUsers()
-        remoteResult.onSuccess {
-            localUsersDataSource.insertUsers(it)
+        if (remoteResult is Result.Success) {
+            localUsersDataSource.insertUsers(remoteResult.data)
         }
         return@withContext remoteResult
     }

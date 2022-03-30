@@ -1,5 +1,6 @@
 package com.s097t0r1.data.local
 
+import com.s097t0r1.domain.Result
 import com.s097t0r1.domain.models.User
 import com.s097t0r1.domain.sources.LocalUsersDataSource
 import kotlinx.coroutines.Dispatchers
@@ -12,9 +13,9 @@ class LocalUsersDataSourceImpl : LocalUsersDataSource {
     override suspend fun getUser(id: String): Result<User> = withContext(Dispatchers.Main) {
         val user = usersList.find { it.id == id }
         if (user == null) {
-            return@withContext Result.failure(RuntimeException("Users with id not found"))
+            return@withContext Result.Failure(RuntimeException("Users with id not found"))
         } else {
-            return@withContext Result.success(user)
+            return@withContext Result.Success(user)
         }
     }
 

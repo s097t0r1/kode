@@ -2,6 +2,7 @@ package com.s097t0r1.kode.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.s097t0r1.domain.Result
 import com.s097t0r1.domain.models.Department
 import com.s097t0r1.domain.repository.UsersRepository
 import com.s097t0r1.kode.ui.main.components.SortingType
@@ -47,10 +48,14 @@ class MainViewModel (
         viewModelScope.launch {
             _viewState.emit(MainViewState.InitialLoadingUsers)
             val usersResult = repository.getUsers()
-            usersResult.fold(
-                onSuccess = { users -> usersManager.setUsers(users) },
-                onFailure = { throwable -> _viewState.emit(MainViewState.CriticalError) }
-            )
+            when (usersResult) {
+                is Result.Success -> {
+                    usersManager.setUsers(usersResult.data)
+                }
+                is Result.Failure -> {
+                    _viewState.emit(MainViewState.CriticalError)
+                }
+            }
         }
     }
 
@@ -58,10 +63,9 @@ class MainViewModel (
         viewModelScope.launch {
             _viewEffect.emit(MainViewEffect.OnSwipeRefresh)
             val userResult = repository.getUsers()
-            userResult.fold(
-                onSuccess = { users -> usersManager.setUsers(users) },
-                onFailure = {}
-            )
+            when (userResult) {
+                is Result.Success -> usersManager.setUsers(userResult.data)
+            }
             _viewEffect.emit(MainViewEffect.Empty)
         }
     }
