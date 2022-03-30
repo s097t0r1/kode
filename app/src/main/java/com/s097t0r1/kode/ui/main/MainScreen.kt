@@ -3,8 +3,10 @@ package com.s097t0r1.kode.ui.main
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -21,7 +23,6 @@ import com.s097t0r1.kode.R
 import com.s097t0r1.kode.ui.details.DETAILS_ARGUMENT_USER_KEY
 import com.s097t0r1.kode.ui.details.DETAILS_SCREEN
 import com.s097t0r1.kode.ui.main.components.*
-import com.s097t0r1.kode.ui.main.managers.UsersManager
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.viewModel
 
@@ -32,7 +33,7 @@ fun MainScreen(navController: NavController) {
     val viewModel: MainViewModel by viewModel()
 
     val viewState by viewModel.viewState.collectAsState()
-    val viewEffect by viewModel.viewEffect.collectAsState()
+    val viewEffect by viewModel.viewEffect.collectAsState(MainViewEffect.Empty)
 
     MainScreen(
         viewState = viewState,
@@ -64,8 +65,8 @@ private fun MainScreen(
     onSwipeRefresh: () -> Unit,
     onItemClick: (User) -> Unit
 ) {
-    when (viewState) {
-        MainViewState.CriticalError -> CriticalError(onRetryClick = onRetryClick)
+    when {
+        viewState.criticalError -> CriticalError(onRetryClick = onRetryClick)
         else -> MainContent(
             viewState = viewState,
             viewEffect = viewEffect,
@@ -90,7 +91,6 @@ private fun MainContent(
     onRefresh: () -> Unit,
     onItemClick: (User) -> Unit
 ) {
-    val (searchText, setSearchText) = rememberSaveable { mutableStateOf("") }
 
     val coroutineScope = rememberCoroutineScope()
     val bottomSheetState = rememberModalBottomSheetState(
@@ -111,23 +111,22 @@ private fun MainContent(
         Column(modifier = modifier) {
             SearchField(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 22.dp),
-                text = searchText,
+                text = viewState.currentSearchQuery,
                 onTextChange = {
-                    setSearchText(it)
                     onSearch(it)
                 },
                 onFilterClick = {
                     coroutineScope.launch { bottomSheetState.show() }
                 }
             )
-            DepartmentTabs(onTabClick)
-            when (viewState) {
-                is MainViewState.InitialLoadingUsers -> PlaceholderUsersList()
-                is MainViewState.EmptySearchResult -> EmptySearch(Modifier.fillMaxSize())
+            DepartmentTabs(viewState.currentDepartmentTab, onTabClick)
+            when {
+                viewState.isInitialLoading -> PlaceholderUsersList()
+                viewState.isEmptySearchResult -> EmptySearch(Modifier.fillMaxSize())
                 else -> {
                     RefreshableContentScreen(
                         viewState = viewState,
-                        viewEffect = viewEffect,
+                        viewEffect= viewEffect,
                         onRefresh = onRefresh,
                         onItemClick = onItemClick
                     )
@@ -174,20 +173,19 @@ private fun RefreshableContentScreen(
     onItemClick: (User) -> Unit
 ) {
     SwipeRefresh(
-        state = rememberSwipeRefreshState(viewEffect is MainViewEffect.OnSwipeRefresh),
+        state = rememberSwipeRefreshState(viewEffect is MainViewEffect.Refreshing),
         onRefresh = onRefresh
     ) {
-        when (viewState) {
-            is MainViewState.DisplayUsersByAlphabetically -> AlphabetUsersList(
-                users = viewState.users,
+        when (viewState.currentSortingType) {
+            SortingType.ALPHABETICALLY -> AlphabetUsersList(
+                users = viewState.alphabetUsers,
                 onItemClick = onItemClick
             )
-            is MainViewState.DisplayUsersByBirthday -> BirthdayUsersList(
-                beforeNewYear = viewState.birthdayTuple.currentYear,
-                afterNewYear = viewState.birthdayTuple.nextYear,
+            SortingType.BIRTHDAY -> BirthdayUsersList(
+                beforeNewYear = viewState.birthdayTuple.first,
+                afterNewYear = viewState.birthdayTuple.second,
                 onItemClick = onItemClick
             )
-            else -> throw IllegalStateException("Illegal state for viewState" + viewState::class)
         }
     }
 
@@ -197,7 +195,7 @@ private fun RefreshableContentScreen(
 @Composable
 private fun MainErrorScreenPreview() {
     MainScreen(
-        viewState = MainViewState.CriticalError,
+        viewState = MainViewState(isInitialLoading = false, criticalError = true),
         viewEffect = MainViewEffect.Empty,
         onSortingTypeSelect = {},
         onTabClick = {},
@@ -212,7 +210,11 @@ private fun MainErrorScreenPreview() {
 @Composable
 private fun MainEmptySearch() {
     MainScreen(
-        viewState = MainViewState.EmptySearchResult,
+        viewState = MainViewState(
+            isInitialLoading = false,
+            criticalError = false,
+            isEmptySearchResult = true
+        ),
         viewEffect = MainViewEffect.Empty,
         onSortingTypeSelect = {},
         onTabClick = {},
@@ -227,7 +229,7 @@ private fun MainEmptySearch() {
 @Composable
 private fun MainInitialLoadingPreview() {
     MainScreen(
-        viewState = MainViewState.InitialLoadingUsers,
+        viewState = MainViewState(isInitialLoading = true),
         viewEffect = MainViewEffect.Empty,
         onSortingTypeSelect = {},
         onTabClick = {},
@@ -242,7 +244,11 @@ private fun MainInitialLoadingPreview() {
 @Composable
 private fun MainDisplayUsersByAlphabetically() {
     MainScreen(
-        viewState = MainViewState.DisplayUsersByAlphabetically(mockUsers),
+        viewState = MainViewState(
+            isInitialLoading = false,
+            currentSortingType = SortingType.ALPHABETICALLY,
+            alphabetUsers = mockUsers
+        ),
         viewEffect = MainViewEffect.Empty,
         onSortingTypeSelect = {},
         onTabClick = {},
@@ -257,11 +263,10 @@ private fun MainDisplayUsersByAlphabetically() {
 @Composable
 private fun MainDisplayUsersByBirthday() {
     MainScreen(
-        viewState = MainViewState.DisplayUsersByBirthday(
-            UsersManager.UsersBirthdayTuple(
-                mockUsers,
-                mockUsers
-            )
+        viewState = MainViewState(
+            isInitialLoading = false,
+            currentSortingType = SortingType.BIRTHDAY,
+            birthdayTuple = Pair(mockUsers, mockUsers)
         ),
         viewEffect = MainViewEffect.Empty,
         onSortingTypeSelect = {},
@@ -277,8 +282,11 @@ private fun MainDisplayUsersByBirthday() {
 @Composable
 private fun MainRefreshUsers() {
     MainScreen(
-        viewState = MainViewState.DisplayUsersByAlphabetically(mockUsers),
-        viewEffect = MainViewEffect.OnSwipeRefresh,
+        viewState = MainViewState(
+            isInitialLoading = false,
+            alphabetUsers = mockUsers,
+        ) ,
+        viewEffect = MainViewEffect.Refreshing,
         onSortingTypeSelect = {},
         onTabClick = {},
         onSearch = {},

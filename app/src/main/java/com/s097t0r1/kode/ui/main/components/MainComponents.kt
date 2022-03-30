@@ -10,8 +10,10 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
-import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -136,25 +138,25 @@ fun SearchField(
 }
 
 @Composable
-fun DepartmentTabs(onTabClick: (Department?) -> Unit) {
-
-    var selectedTabIndex by rememberSaveable { mutableStateOf(0) }
+fun DepartmentTabs(
+    currentDepartment: DepartmentTabs,
+    onTabClick: (Department?) -> Unit
+) {
 
     ScrollableTabRow(
-        selectedTabIndex = selectedTabIndex,
+        selectedTabIndex = currentDepartment.ordinal,
         backgroundColor = Color.Transparent,
         indicator = {
             TabRowDefaults.Indicator(
                 color = MaterialTheme.colors.primary,
-                modifier = Modifier.tabIndicatorOffset(it[selectedTabIndex])
+                modifier = Modifier.tabIndicatorOffset(it[currentDepartment.ordinal])
             )
         }
     ) {
         DepartmentTabs.values().forEach { tab ->
             Tab(
-                selected = selectedTabIndex == tab.ordinal,
+                selected = currentDepartment.ordinal == tab.ordinal,
                 onClick = {
-                    selectedTabIndex = tab.ordinal
                     onTabClick(tab.department)
                 },
                 text = { Text(text = stringResource(tab.title)) },
@@ -345,7 +347,7 @@ private fun SearchFieldPreview() {
 @Composable
 @Preview
 private fun TabsPreview() {
-    DepartmentTabs(onTabClick = {})
+    DepartmentTabs(currentDepartment = DepartmentTabs.ALL, onTabClick = {})
 }
 
 @Composable
