@@ -1,20 +1,25 @@
 package com.s097t0r1.kode.ui.main
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.s097t0r1.data.remote.exceptions.NoInternetConnectionException
 import com.s097t0r1.domain.Result
 import com.s097t0r1.domain.models.Department
 import com.s097t0r1.domain.repository.UsersRepository
+import com.s097t0r1.kode.R
 import com.s097t0r1.kode.ui.main.components.DepartmentTabs
 import com.s097t0r1.kode.ui.main.components.SortingType
 import com.s097t0r1.kode.ui.main.managers.UsersManager
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class MainViewModel(
+    private val context: Application,
     private val repository: UsersRepository
-) : ViewModel() {
+) : AndroidViewModel(context) {
 
     private val usersManager = UsersManager()
 
@@ -105,6 +110,15 @@ class MainViewModel(
             val userResult = repository.getUsers()
             when (userResult) {
                 is Result.Success -> usersManager.setUsers(userResult.data)
+                is Result.Failure -> {
+                    val errorMessage = when (userResult.throwable) {
+                        is NoInternetConnectionException -> context.getString(R.string.no_internet_connection_snackbar_text)
+                        else -> context.getString(R.string.unknown_error_snackbar_text)
+                    }
+                    _viewEffect.emit(MainViewEffect.ErrorSnackBar(errorMessage))
+                    delay(3000)
+                    _viewEffect.emit(MainViewEffect.Empty)
+                }
             }
             _viewEffect.emit(MainViewEffect.Empty)
         }

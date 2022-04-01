@@ -19,7 +19,7 @@ class UsersRepositoryImpl(
         if (remoteResult is Result.Success) {
             localUsersDataSource.insertUsers(remoteResult.data)
         } else if (remoteResult is Result.Failure) {
-            Result.Failure(remoteResult.throwable.convertToRemoteException())
+            return@withContext Result.Failure(remoteResult.throwable.convertToRemoteException())
         }
         return@withContext remoteResult
     }

@@ -37,4 +37,7 @@
     </plurals>
 
     <string name="refreshing_snackbar_text">Секундочку, гружусь…</string>
+
+    <string name="no_internet_connection_snackbar_text">Не могу обновить данные. \nПроверь соединение с интернетом.</string>
+    <string name="unknown_error_snackbar_text">Неизвестная ошибка…</string>
 </resources>

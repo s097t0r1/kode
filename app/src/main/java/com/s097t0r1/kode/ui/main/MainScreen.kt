@@ -150,7 +150,10 @@ private fun MainContent(
                     .align(Alignment.BottomCenter),
                 visible = viewEffect is MainViewEffect.ErrorSnackBar
             ) {
-                ErrorSnackbar(errorMessage = (viewEffect as MainViewEffect.ErrorSnackBar).message)
+                ErrorSnackbar(
+                    errorMessage = (viewEffect as? MainViewEffect.ErrorSnackBar)?.message
+                        ?: stringResource(R.string.unknown_error_snackbar_text)
+                )
             }
         }
     }
