@@ -1,5 +1,6 @@
 package com.s097t0r1.data.repository
 
+import com.s097t0r1.data.remote.exceptions.convertToRemoteException
 import com.s097t0r1.domain.Result
 import com.s097t0r1.domain.models.User
 import com.s097t0r1.domain.repository.UsersRepository
@@ -17,6 +18,8 @@ class UsersRepositoryImpl(
         val remoteResult = remoteUsersDataSource.getUsers()
         if (remoteResult is Result.Success) {
             localUsersDataSource.insertUsers(remoteResult.data)
+        } else if (remoteResult is Result.Failure) {
+            Result.Failure(remoteResult.throwable.convertToRemoteException())
         }
         return@withContext remoteResult
     }
