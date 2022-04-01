@@ -35,4 +35,6 @@
         <item quantity="many">%d лет</item>
         <item quantity="other">%d лет</item>
     </plurals>
+
+    <string name="refreshing_snackbar_text">Секундочку, гружусь…</string>
 </resources>

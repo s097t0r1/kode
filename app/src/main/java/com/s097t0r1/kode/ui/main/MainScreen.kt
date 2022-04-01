@@ -127,7 +127,7 @@ private fun MainContent(
                 else -> {
                     RefreshableContentScreen(
                         viewState = viewState,
-                        viewEffect= viewEffect,
+                        viewEffect = viewEffect,
                         onRefresh = onRefresh,
                         onItemClick = onItemClick
                     )
@@ -286,7 +286,7 @@ private fun MainRefreshUsers() {
         viewState = MainViewState(
             isInitialLoading = false,
             alphabetUsers = mockUsers,
-        ) ,
+        ),
         viewEffect = MainViewEffect.Refreshing,
         onSortingTypeSelect = {},
         onTabClick = {},
