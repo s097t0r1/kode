@@ -39,4 +39,5 @@ sealed class MainEvents {
 sealed class MainViewEffect() {
     object Empty : MainViewEffect()
     object Refreshing : MainViewEffect()
+    class ErrorSnackBar(val message: String) : MainViewEffect()
 }

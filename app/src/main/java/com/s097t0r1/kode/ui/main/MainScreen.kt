@@ -1,5 +1,6 @@
 package com.s097t0r1.kode.ui.main
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -97,41 +98,59 @@ private fun MainContent(
         initialValue = ModalBottomSheetValue.Hidden,
     )
 
-    ModalBottomSheetLayout(
-        sheetState = bottomSheetState,
-        sheetContent = {
-            SortingBottomSheet(
-                currentSortingType = viewState.currentSortingType,
-                onSortingTypeSelect = {
-                    onSortTypeSelect(it)
-                    coroutineScope.launch { bottomSheetState.hide() }
+    Box {
+        ModalBottomSheetLayout(
+            sheetState = bottomSheetState,
+            sheetContent = {
+                SortingBottomSheet(
+                    currentSortingType = viewState.currentSortingType,
+                    onSortingTypeSelect = {
+                        onSortTypeSelect(it)
+                        coroutineScope.launch { bottomSheetState.hide() }
+                    }
+                )
+            }
+        ) {
+            Column(modifier = modifier) {
+                SearchField(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 22.dp),
+                    text = viewState.currentSearchQuery,
+                    onTextChange = {
+                        onSearch(it)
+                    },
+                    onFilterClick = {
+                        coroutineScope.launch { bottomSheetState.show() }
+                    }
+                )
+                DepartmentTabs(viewState.currentDepartmentTab, onTabClick)
+                when {
+                    viewState.isInitialLoading -> PlaceholderUsersList()
+                    viewState.isEmptySearchResult -> EmptySearch(Modifier.fillMaxSize())
+                    else -> {
+                        RefreshableContentScreen(
+                            viewState = viewState,
+                            viewEffect = viewEffect,
+                            onRefresh = onRefresh,
+                            onItemClick = onItemClick
+                        )
+                    }
                 }
-            )
-        }
-    ) {
-        Column(modifier = modifier) {
-            SearchField(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 22.dp),
-                text = viewState.currentSearchQuery,
-                onTextChange = {
-                    onSearch(it)
-                },
-                onFilterClick = {
-                    coroutineScope.launch { bottomSheetState.show() }
-                }
-            )
-            DepartmentTabs(viewState.currentDepartmentTab, onTabClick)
-            when {
-                viewState.isInitialLoading -> PlaceholderUsersList()
-                viewState.isEmptySearchResult -> EmptySearch(Modifier.fillMaxSize())
-                else -> {
-                    RefreshableContentScreen(
-                        viewState = viewState,
-                        viewEffect = viewEffect,
-                        onRefresh = onRefresh,
-                        onItemClick = onItemClick
-                    )
-                }
+            }
+            AnimatedVisibility(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 40.dp)
+                    .align(Alignment.BottomCenter),
+                visible = viewEffect is MainViewEffect.Refreshing
+            ) {
+                RefreshingSnackbar()
+            }
+            AnimatedVisibility(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 40.dp)
+                    .align(Alignment.BottomCenter),
+                visible = viewEffect is MainViewEffect.ErrorSnackBar
+            ) {
+                ErrorSnackbar(errorMessage = (viewEffect as MainViewEffect.ErrorSnackBar).message)
             }
         }
     }
