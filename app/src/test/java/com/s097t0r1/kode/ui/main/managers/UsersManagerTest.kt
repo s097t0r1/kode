@@ -79,7 +79,7 @@ class UsersManagerTest {
     }
 
     @Test
-    fun sortByBirthday_NextBirthOnlyOnTheNextYear_TupleSortedByNearestBirthWithEmptySecondElement() {
+    fun sortByBirthday_BirthsOnlyInTheCurrentYear_TupleSortedByNearestBirthWithEmptySecondElement() {
         val simpleDateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
         val user1 = mockUser.copy(birthday = simpleDateFormat.parse("14-06-2001")!!)
         val user2 = mockUser.copy(id = "1241498", birthday = simpleDateFormat.parse("14-07-1999")!!)
