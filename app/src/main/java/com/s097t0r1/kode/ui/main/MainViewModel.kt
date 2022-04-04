@@ -37,32 +37,6 @@ class MainViewModel(
         }.launchIn(viewModelScope)
 
         getUsers()
-
-        usersManager.flow
-            .debounce(500L)
-            .onEach { result ->
-                when (result) {
-                    is UsersManager.Result.Alphabetically -> {
-                        when {
-                            result.value.isEmpty() -> events.send(MainEvents.EmptySearch)
-                            else -> events.send(MainEvents.DisplayUsers(users = result.value))
-                        }
-                    }
-                    is UsersManager.Result.Birthday -> {
-                        when {
-                            result.value.isEmpty() -> events.send(MainEvents.EmptySearch)
-                            else -> events.send(
-                                MainEvents.DisplayUsers(
-                                    tuple = Pair(
-                                        result.value.currentYear,
-                                        result.value.nextYear
-                                    )
-                                )
-                            )
-                        }
-                    }
-                }
-            }.launchIn(viewModelScope)
     }
 
     private fun reduce(oldState: MainViewState, event: MainEvents) {
@@ -96,6 +70,7 @@ class MainViewModel(
             when (usersResult) {
                 is Result.Success -> {
                     usersManager.setUsers(usersResult.data)
+                    filterAndSortUsers()
                 }
                 is Result.Failure -> {
                     events.send(MainEvents.CriticalError)
@@ -134,6 +109,7 @@ class MainViewModel(
         usersManager.setDepartmentPredicate { user ->
             if (department != null) user.department == department else true
         }
+        filterAndSortUsers()
     }
 
     fun setSearchQuery(searchQuery: String) {
@@ -147,13 +123,39 @@ class MainViewModel(
                     user.lastName.contains(searchQuery) ||
                     user.userTag.contains(searchQuery)
         }
+        filterAndSortUsers()
     }
 
     fun setSortingType(sortingType: SortingType) {
         viewModelScope.launch {
             events.send(MainEvents.ChangeSortingType(sortingType))
+            filterAndSortUsers()
         }
-        usersManager.setSortingType(sortingType)
+    }
+
+    private fun filterAndSortUsers() {
+        viewModelScope.launch {
+            when (_viewState.value.currentSortingType) {
+                SortingType.ALPHABETICALLY -> {
+                    val sortedByAlphabetUsers = usersManager.sortByAlphabet()
+                    if (sortedByAlphabetUsers.isEmpty()) {
+                        events.send(MainEvents.EmptySearch)
+                    } else {
+                        events.send(
+                            MainEvents.DisplayUsers(users = sortedByAlphabetUsers)
+                        )
+                    }
+                }
+                SortingType.BIRTHDAY -> {
+                    val sortedByBirthdayUsers = usersManager.sortByBirthday()
+                    if (sortedByBirthdayUsers.first.isEmpty() && sortedByBirthdayUsers.second.isEmpty()) {
+                        events.send(MainEvents.EmptySearch)
+                    } else {
+                        events.send(MainEvents.DisplayUsers(tuple = sortedByBirthdayUsers))
+                    }
+                }
+            }
+        }
     }
 
 }
